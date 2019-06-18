@@ -20,6 +20,7 @@ PATH_TODAY = "today/%s"
 PATH_STATS = "stats/%s"
 PATH_LENDBOOK = "lendbook/%s"
 PATH_ORDERBOOK = "book/%s"
+PATH_KEYINFO = "key_info"
 
 # HTTP request timeout in seconds
 TIMEOUT = 5.0
@@ -1340,6 +1341,11 @@ class Client:
             for list_ in data[type_]:
                 for key, value in list_.items():
                     list_[key] = value
+
+        return data
+
+    def key_permissions(self):
+        data = self._post(PATH_KEYINFO, {'request': '/v1/key_info', 'nonce': self._nonce()})
 
         return data
 
