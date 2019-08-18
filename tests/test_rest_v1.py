@@ -279,6 +279,28 @@ def test_get_active_positions_returns_json(client, requests_mock):
         'https://api.bitfinex.com/v1/positions'
     )
 
+
+def test_key_permissions_returns_json(client, requests_mock):
+    request_result = {
+        'account': {'read': True, 'write': False},
+        'history': {'read': True, 'write': False},
+        'orders': {'read': True, 'write': False},
+        'positions': {'read': True, 'write': False},
+        'funding': {'read': True, 'write': False},
+        'wallets': {'read': True, 'write': False},
+        'withdraw': {'read': False, 'write': False}
+    }
+
+    requests_mock.register_uri(
+        rm.ANY,
+        rm.ANY,
+        text=json.dumps(request_result)
+    )
+
+    assert client.key_permissions() == request_result
+    assert requests_mock.request_history[0].url == (
+        'https://api.bitfinex.com/v1/key_info'
+    )
 # def test_get_full_history(client, requests_mock):
 #     mock_body = [{
 #         "price":"562.2601",
