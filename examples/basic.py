@@ -1,4 +1,4 @@
-from bitfinex.client import Client
+from bitfinex import Client
 
 client = Client()
 
