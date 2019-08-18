@@ -904,7 +904,7 @@ class Client:
         response = self._post(path, raw_body, verify=True)
         return response
 
-    def trades_history(self, trade_pair, **kwargs):
+    def trades_history(self, trade_pair=None, **kwargs):
         """`Bitfinex trades history reference
         <https://docs.bitfinex.com/v2/reference#rest-auth-trades-hist>`_
 
@@ -912,8 +912,9 @@ class Client:
 
         Parameters
         ----------
-        symbol : str
+        trade_pair : Optional str
             The `symbol <restv1.html#symbols>`_ you want information about.
+            Omit for all symbols
 
         start : Optional int
             Millisecond start time
@@ -961,7 +962,10 @@ class Client:
 
         body = kwargs
         raw_body = json.dumps(body)
-        path = "v2/auth/r/trades/{}/hist".format(trade_pair)
+        if trade_pair is None:
+            path = "v2/auth/r/trades/hist"  # will load history for all pairs
+        else:
+            path = "v2/auth/r/trades/{}/hist".format(trade_pair)
         response = self._post(path, raw_body, verify=True)
         return response
 
