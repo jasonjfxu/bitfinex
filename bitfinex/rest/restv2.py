@@ -779,7 +779,7 @@ class Client:
         response = self._post(path, raw_body, verify=True)
         return response
 
-    def orders_history(self, trade_pair, **kwargs):
+    def orders_history(self, trade_pair=None, **kwargs):
         """`Bitfinex orders history reference
         <https://bitfinex.readme.io/v2/reference#orders-history>`_
 
@@ -850,7 +850,10 @@ class Client:
 
         body = kwargs
         raw_body = json.dumps(body)
-        path = "v2/auth/r/orders/{}/hist".format(trade_pair)
+        if trade_pair:
+            path = "v2/auth/r/orders/{}/hist".format(trade_pair)
+        else:
+            path = "v2/auth/r/orders/hist"
         response = self._post(path, raw_body, verify=True)
         return response
 
