@@ -1010,6 +1010,127 @@ class Client:
         response = self._post(path, raw_body, verify=True)
         return response
 
+    def positions_history(self, **kwargs):
+        """`Bitfinex positions history reference
+        <https://docs.bitfinex.com/v2/reference#positions-history>`_
+
+        Return the positions of a user between two dates
+
+        Parameters
+        ----------
+        start : Optional int
+            Millisecond start time
+
+        end : Optional int
+            Millisecond end time
+
+        limit : Optional int
+            Number of records
+
+        Returns
+        -------
+        list
+             ::
+
+                [
+                  [
+                    SYMBOL,
+                    STATUS,
+                    AMOUNT,
+                    BASE_PRICE,
+                    MARGIN_FUNDING,
+                    MARGIN_FUNDING_TYPE,
+                    PL,
+                    PL_PERC,
+                    PRICE_LIQ,
+                    LEVERAGE,
+                    ID,
+                    MTS_CREATE,
+                    MTS_UPDATE
+                  ],
+                  ...
+                ]
+
+        Examples
+        --------
+         ::
+
+            positions = bfx_client.positions_history(limit=10)
+            for position in positions:
+                print(position)
+
+        """
+
+        body = kwargs
+        raw_body = json.dumps(body)
+        path = "v2/auth/r/positions/hist"
+        response = self._post(path, raw_body, verify=True)
+        return response
+
+    def positions_audit(self, **kwargs):
+        """`Bitfinex positions audit reference
+        <https://docs.bitfinex.com/v2/reference#positions-audit>`_
+
+        Return and audit of the positions of a user that correspond to the ids send
+
+        Parameters
+        ----------
+        id : Optional list of ints
+            List of position IDs to audit
+
+        start : Optional int
+            Millisecond start time
+
+        end : Optional int
+            Millisecond end time
+
+        limit : Optional int
+            Number of records
+
+        Returns
+        -------
+        list
+             ::
+
+                [
+                  [
+                    SYMBOL,
+                    STATUS,
+                    AMOUNT,
+                    BASE_PRICE,
+                    MARGIN_FUNDING,
+                    MARGIN_FUNDING_TYPE,
+                    PL,
+                    PL_PERC,
+                    PRICE_LIQ,
+                    LEVERAGE,
+                    ID,
+                    MTS_CREATE,
+                    MTS_UPDATE,
+                    TYPE,
+                    COLLATERAL,
+                    COLLATERAL_MIN,
+                    META
+                  ],
+                  ...
+                ]
+
+        Examples
+        --------
+         ::
+
+            positions = bfx_client.positions_audit([1, 2, 3])
+            for position in positions:
+                print(position)
+
+        """
+
+        body = kwargs
+        raw_body = json.dumps(body)
+        path = "v2/auth/r/positions/audit"
+        response = self._post(path, raw_body, verify=True)
+        return response
+
     def funding_offers(self, symbol=""):
         """`Bitfinex funding offers reference
         <https://bitfinex.readme.io/v2/reference#rest-auth-funding-offers>`_
