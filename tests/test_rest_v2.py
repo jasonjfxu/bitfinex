@@ -561,6 +561,155 @@ def test_active_positions_response(client, requests_mock):
     assert ap_response[0][1] == 'ACTIVE'
 
 
+def test_positions_history_url_is_ok(client, requests_mock):
+    response_text = json.dumps([])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.positions_history()
+    assert requests_mock.request_history[0].url == (
+        'https://api.bitfinex.com/v2/auth/r/positions/hist'
+    )
+
+
+def test_positions_history_response(client, requests_mock):
+    response_text = json.dumps([
+        ['tEOSUSD',
+         'CLOSED',
+         0,
+         3.6401,
+         0,
+         0,
+         None,
+         None,
+         None,
+         None,
+         None,
+         141927357,
+         1566795491000,
+         1566796723000,
+         None,
+         None,
+         None,
+         None,
+         None,
+         None],
+        ['tBTCUSD',
+         'CLOSED',
+         0,
+         7800.45,
+         0,
+         0,
+         None,
+         None,
+         None,
+         None,
+         None,
+         141927357,
+         1566795491000,
+         1566796723000,
+         None,
+         None,
+         None,
+         None,
+         None,
+         None]
+    ])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    ph_response = client.positions_history()
+    assert isinstance(ph_response, list)
+    assert ph_response[0][0] == 'tEOSUSD'
+    assert ph_response[0][1] == 'CLOSED'
+
+
+def test_positions_audit_url_is_ok(client, requests_mock):
+    response_text = json.dumps([])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.positions_audit()
+    assert requests_mock.request_history[0].url == (
+        'https://api.bitfinex.com/v2/auth/r/positions/audit'
+    )
+
+
+def test_positions_audit_response(client, requests_mock):
+    response_text = json.dumps([
+        ['tEOSUSD',
+         'CLOSED',
+         0,
+         3.6401,
+         0,
+         0,
+         None,
+         None,
+         None,
+         None,
+         None,
+         141927357,
+         1566795491000,
+         1566796723000,
+         None,
+         None,
+         None,
+         0,
+         None,
+         {'reason': 'TRADE',
+          'order_id': 30276659928,
+          'liq_stage': None,
+          'trade_price': 3.6246,
+          'trade_amount': -10,
+          'user_id_oppo': 1689030,
+          'order_id_oppo': 30276656019}],
+        ['tEOSUSD',
+         'ACTIVE',
+         10,
+         3.6401,
+         0,
+         0,
+         None,
+         None,
+         None,
+         None,
+         None,
+         141927357,
+         1566795491000,
+         1566795491000,
+         None,
+         None,
+         None,
+         0,
+         None,
+         {'reason': 'TRADE',
+          'order_id': 30274071258,
+          'liq_stage': None,
+          'trade_price': 3.6401,
+          'trade_amount': 10,
+          'user_id_oppo': 29516,
+          'order_id_oppo': 30276053344}]
+    ])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    pa_response = client.positions_audit()
+    assert isinstance(pa_response, list)
+    assert pa_response[0][1] == 'CLOSED'
+    assert isinstance(pa_response[0][19], dict)
+    assert pa_response[0][19]['trade_amount'] == -10
+    assert pa_response[1][1] == 'ACTIVE'
+    assert pa_response[1][19]['order_id'] == 30274071258
+
+
 def test_funding_offers_url_is_ok(client, requests_mock):
     response_text = json.dumps([])
     requests_mock.register_uri(
