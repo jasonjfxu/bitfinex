@@ -1659,7 +1659,7 @@ class Client:
         response = self._post(path, raw_body, verify=True)
         return response
 
-    def movements(self, currency=""):
+    def movements(self, currency="", **kwargs):
         """`Bitfinex movements reference
         <https://bitfinex.readme.io/v2/reference#movements>`_
 
@@ -1667,8 +1667,17 @@ class Client:
 
         Parameters
         ----------
-        Currency : str
+        currency : str
             Currency (BTC, ...)
+
+        start : Optional int
+            Millisecond start time
+
+        end : Optional int
+            Millisecond end time
+
+        limit : Optional int
+            Number of records, default & max: 25
 
         Returns
         -------
@@ -1712,7 +1721,7 @@ class Client:
             bfx_client.movements("BTC")
 
         """
-        body = {}
+        body = kwargs
         raw_body = json.dumps(body)
         add_currency = "{}/".format(currency.upper()) if currency else ""
         path = "v2/auth/r/movements/{}hist".format(add_currency)
