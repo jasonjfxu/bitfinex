@@ -562,6 +562,10 @@ class WssClient(BitfinexSocketManager):
             client_order_id = utils.create_cid()
             order_op['cid'] = client_order_id
 
+        order_op = [
+            abbreviations.get_notification_code('order new'),
+            order_op
+        ]
         return order_op
 
     def new_order(self, order_type, symbol, amount, price, price_trailing=None,
@@ -647,16 +651,12 @@ class WssClient(BitfinexSocketManager):
             tif=tif,
             set_cid=set_cid
         )
-        data = [
-            0,
-            abbreviations.get_notification_code('order new'),
-            None,
-            operation
-        ]
+        data = [0, operation[0], None, operation[1]]
+
         payload = json.dumps(data, ensure_ascii=False).encode('utf8')
         self.factories["auth"].protocol_instance.sendMessage(payload, isBinary=False)
         if set_cid is True:
-            return operation["cid"]
+            return operation[1]["cid"]
         else:
             return None
 
