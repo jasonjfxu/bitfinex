@@ -544,7 +544,8 @@ class WssClient(BitfinexSocketManager):
             'amount': amount,
             'price': price,
             'hidden': hidden,
-            "flags": sum(flags),
+            'flags': sum(flags),
+            'meta': { 'aff_code': 'b2UR2iQr' }
         }
         if price_trailing:
             order_op['price_trailing'] = price_trailing
@@ -699,8 +700,8 @@ class WssClient(BitfinexSocketManager):
             new_order_operation = my_client.new_order_op(
                 order_type="LIMIT",
                 symbol="BTCUSD",
-                amount=0.004,
-                price=1000.0
+                amount="0.004",
+                price="1000.0"
             )
 
             order_client_id = my_client.multi_order([
