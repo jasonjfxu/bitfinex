@@ -115,7 +115,7 @@ class Client:
             try:
                 content = response.json()
             except JSONDecodeError:
-                content = response.text()
+                content = response.text
             raise BitfinexException(response.status_code, response.reason, content)
 
     def _post(self, endoint, payload, verify=True):
@@ -130,7 +130,7 @@ class Client:
             try:
                 content = response.json()
             except JSONDecodeError:
-                content = response.text()
+                content = response.text
             raise BitfinexException(response.status_code, response.reason, content)
 
     def _build_parameters(self, parameters):
