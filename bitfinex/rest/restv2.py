@@ -11,7 +11,9 @@ import requests
 from bitfinex import utils
 
 PROTOCOL = "https"
-HOST = "api.bitfinex.com"
+PUBLIC_PREFIX = "api-pub"
+PRIVATE_PREFIX = "api"
+HOST = "bitfinex.com"
 VERSION = "v2"
 
 
@@ -61,7 +63,8 @@ class Client:
         """
 
         assert isinstance(nonce_multiplier, float), "nonce_multiplier must be decimal"
-        self.base_url = "%s://%s/" % (PROTOCOL, HOST)   
+        self.private_url = "%s://%s.%s/" % (PROTOCOL, PRIVATE_PREFIX, HOST)
+        self.public_url = "%s://%s.%s/" % (PROTOCOL, PUBLIC_PREFIX, HOST)
         self.key = key
         self.secret = secret
         self.nonce_multiplier = nonce_multiplier
@@ -94,7 +97,22 @@ class Client:
         """
         nonce = self._nonce()
         headers = self._headers(path, nonce, payload)
-        response = requests.post(self.base_url + path, headers=headers, data=payload, verify=verify)
+        response = requests.post(self.private_url + path, headers=headers, data=payload, verify=verify)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            try:
+                content = response.json()
+            except JSONDecodeError:
+                content = response.text()
+            raise BitfinexException(response.status_code, response.reason, content)
+
+    def _public_post(self, path, payload, verify=False):
+        """
+        Send post request to bitfinex
+        """
+        response = requests.post(self.public_url + path, data=payload, verify=verify)
 
         if response.status_code == 200:
             return response.json()
@@ -109,7 +127,7 @@ class Client:
         """
         Send get request to bitfinex
         """
-        url = self.base_url + path
+        url = self.public_url + path
         response = requests.get(url, timeout=TIMEOUT, params=params)
         if response.status_code == 200:
             return response.json()
@@ -642,7 +660,7 @@ class Client:
         body = kwargs
         raw_body = json.dumps(body)
         path = "v2/calc/trade/avg"
-        response = self._post(path, raw_body, verify=True)
+        response = self._public_post(path, raw_body, verify=True)
         return response
 
     def foreign_exchange_rate(self, **kwargs):
@@ -675,7 +693,7 @@ class Client:
         body = kwargs
         raw_body = json.dumps(body)
         path = "v2/calc/fx"
-        response = self._post(path, raw_body, verify=True)
+        response = self._public_post(path, raw_body, verify=True)
         return response
 
     # REST AUTHENTICATED ENDPOINTS

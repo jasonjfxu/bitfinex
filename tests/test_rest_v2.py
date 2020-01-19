@@ -30,7 +30,7 @@ def test_tickers_url_is_ok(client, requests_mock):
     )
     client.tickers(['tIOTBTC', 'tIOTUSD'])
     assert requests_mock.request_history[0].url == (
-        'https://api.bitfinex.com/v2/tickers?symbols=tIOTBTC,tIOTUSD'
+        'https://api-pub.bitfinex.com/v2/tickers?symbols=tIOTBTC,tIOTUSD'
     )
 
 
@@ -76,7 +76,7 @@ def test_ticker_url_is_ok(client, requests_mock):
     )
     client.ticker('tIOTBTC')
     assert requests_mock.request_history[0].url == (
-        'https://api.bitfinex.com/v2/ticker/tIOTBTC'
+        'https://api-pub.bitfinex.com/v2/ticker/tIOTBTC'
     )
 
 
@@ -111,7 +111,7 @@ def test_trades_url_is_ok(client, requests_mock):
     )
     client.trades('tIOTUSD')
     assert requests_mock.request_history[0].url == (
-        'https://api.bitfinex.com/v2/trades/tIOTUSD/hist'
+        'https://api-pub.bitfinex.com/v2/trades/tIOTUSD/hist'
     )
 
 
@@ -138,7 +138,7 @@ def test_book_url_is_ok(client, requests_mock):
     )
     client.book('tIOTUSD', 'P1')
     assert requests_mock.request_history[0].url == (
-        'https://api.bitfinex.com/v2/book/tIOTUSD/P1'
+        'https://api-pub.bitfinex.com/v2/book/tIOTUSD/P1'
     )
 
 
@@ -174,7 +174,7 @@ def test_stats_url_is_ok(client, requests_mock):
     )
     client.stats(**params)
     assert requests_mock.request_history[0].url == (
-        'https://api.bitfinex.com/v2/stats1/funding.size:1m:fUSD/hist?sort=0'
+        'https://api-pub.bitfinex.com/v2/stats1/funding.size:1m:fUSD/hist?sort=0'
     )
 
 
@@ -214,7 +214,7 @@ def test_candles_url_is_ok(client, requests_mock):
     )
     client.candles("1m", "tBTCUSD", "hist", limit='1')
     assert requests_mock.request_history[0].url == (
-        'https://api.bitfinex.com/v2/candles/trade:1m:tBTCUSD/hist?limit=1'
+        'https://api-pub.bitfinex.com/v2/candles/trade:1m:tBTCUSD/hist?limit=1'
     )
 
 
@@ -243,7 +243,7 @@ def test_market_avg_url_is_ok(client, requests_mock):
     )
     client.market_average_price(symbol="tBTCUSD", amount="100", period="1m")
     assert requests_mock.request_history[0].url == (
-        'https://api.bitfinex.com/v2/calc/trade/avg'
+        'https://api-pub.bitfinex.com/v2/calc/trade/avg'
     )
 
 
@@ -270,7 +270,7 @@ def test_fx_rate_url_is_ok(client, requests_mock):
     )
     client.foreign_exchange_rate(ccy1="IOT", ccy2="USD")
     assert requests_mock.request_history[0].url == (
-        'https://api.bitfinex.com/v2/calc/fx'
+        'https://api-pub.bitfinex.com/v2/calc/fx'
     )
 
 
