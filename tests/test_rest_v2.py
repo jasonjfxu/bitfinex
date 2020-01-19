@@ -130,19 +130,19 @@ def test_trades_response(client, requests_mock):
     assert trades_response[0][0] == 272147102
 
 
-def test_books_url_is_ok(client, requests_mock):
+def test_book_url_is_ok(client, requests_mock):
     requests_mock.register_uri(
         rmock.ANY,
         rmock.ANY,
         text="[]"
     )
-    client.books('tIOTUSD', 'P1')
+    client.book('tIOTUSD', 'P1')
     assert requests_mock.request_history[0].url == (
         'https://api.bitfinex.com/v2/book/tIOTUSD/P1'
     )
 
 
-def test_books_response(client, requests_mock):
+def test_book_response(client, requests_mock):
     response_text = json.dumps([
         [0.97692, 2, 1476.41706974],
         [0.97446, 1, 162.69181129],
@@ -153,9 +153,9 @@ def test_books_response(client, requests_mock):
         rmock.ANY,
         text=response_text
     )
-    books_response = client.books('tIOTUSD', 'P1')
-    assert isinstance(books_response, list)
-    assert books_response[0][0] == 0.97692
+    book_response = client.book('tIOTUSD', 'P1')
+    assert isinstance(book_response, list)
+    assert book_response[0][0] == 0.97692
 
 
 def test_stats_url_is_ok(client, requests_mock):

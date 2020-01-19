@@ -355,11 +355,11 @@ class Client:
         response = self._get(path)
         return response
 
-    def books(self, symbol, precision="P0"):
-        """`Bitfinex books reference
-        <https://bitfinex.readme.io/v2/reference#rest-public-books>`_
+    def book(self, symbol, precision="P0"):
+        """`Bitfinex book reference
+        <https://bitfinex.readme.io/v2/reference#rest-public-book>`_
 
-        The Order Books channel allow you to keep track of the state of the Bitfinex order book.
+        The Order Book channel allow you to keep track of the state of the Bitfinex order book.
         It is provided on a price aggregated basis, with customizable precision.
 
         Parameters
@@ -398,9 +398,9 @@ class Client:
         --------
          ::
 
-            bfx_client.books('tIOTUSD')
-            bfx_client.books('fIOT')
-            bfx_client.books('tBTCUSD')
+            bfx_client.book('tIOTUSD')
+            bfx_client.book('fIOT')
+            bfx_client.book('tBTCUSD')
 
         """
         path = "v2/book/{}/{}".format(symbol, precision)

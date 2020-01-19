@@ -38,8 +38,8 @@ if __name__ == "__main__":
     BTFXCLIENT.ticker('tIOTUSD')             # ticker
     BTFXCLIENT.trades('fIOT')                # public trades for symbol
     BTFXCLIENT.trades('tIOTUSD')             # public trades for symbol
-    BTFXCLIENT.books('tIOTUSD')              # books for tIOTUSD with price precision 0
-    BTFXCLIENT.books('tIOTUSD', "P1")        # books for tIOTUSD with price precision 1
+    BTFXCLIENT.book('tIOTUSD')               # book for tIOTUSD with price precision 0
+    BTFXCLIENT.book('tIOTUSD', "P1")         # book for tIOTUSD with price precision 1
 
     PARAMS = {
         'key': 'funding.size',
