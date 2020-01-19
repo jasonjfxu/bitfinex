@@ -30,9 +30,9 @@ class Client:
     """Client for the bitfinex.com API REST V2.
     Link for official bitfinex documentation :
 
-    `Bitfinex rest2 docs <https://bitfinex.readme.io/v2/docs>`_
+    `Bitfinex rest2 docs <https://docs.bitfinex.com/docs>`_
 
-    `Bitfinex rest2 reference <https://bitfinex.readme.io/v2/reference>`_
+    `Bitfinex rest2 reference <https://docs.bitfinex.com/reference>`_
 
     Parameters
     ----------
@@ -61,7 +61,7 @@ class Client:
         """
 
         assert isinstance(nonce_multiplier, float), "nonce_multiplier must be decimal"
-        self.base_url = "%s://%s/" % (PROTOCOL, HOST)
+        self.base_url = "%s://%s/" % (PROTOCOL, HOST)   
         self.key = key
         self.secret = secret
         self.nonce_multiplier = nonce_multiplier
@@ -126,7 +126,7 @@ class Client:
         .. _platform_status:
 
         `Bitfinex platform_status reference
-        <https://bitfinex.readme.io/v2/reference#rest-public-platform-status>`_
+        <https://docs.bitfinex.com/reference#rest-public-platform-status>`_
 
         Get the current status of the platform. Maintenance periods last for just few minutes and
         might be necessary from time to time during upgrades of core components of our
@@ -152,7 +152,7 @@ class Client:
 
     def tickers(self, symbol_list):
         """`Bitfinex tickers reference
-        <https://bitfinex.readme.io/v2/reference#rest-public-tickers>`_
+        <https://docs.bitfinex.com/reference#rest-public-tickers>`_
 
         The ticker is a high level overview of the state of the market. It shows you the current
         best bid and ask, as well as the last trade price.It also includes information such as daily
@@ -242,7 +242,7 @@ class Client:
 
     def ticker(self, symbol):
         """`Bitfinex ticker reference
-        <https://bitfinex.readme.io/v2/reference#rest-public-ticker>`_
+        <https://docs.bitfinex.com/reference#rest-public-ticker>`_
 
         The ticker is a high level overview of the state of the market.It shows you the current best
         bid and ask, as well as the last trade price.It also includes information such as daily
@@ -305,7 +305,7 @@ class Client:
 
     def trades(self, symbol):
         """`Bitfinex trades reference
-        <https://bitfinex.readme.io/v2/reference#rest-public-trades>`_
+        <https://docs.bitfinex.com/reference#rest-public-trades>`_
 
         Trades endpoint includes all the pertinent details of the trade, such as price,
         size and time.
@@ -357,7 +357,7 @@ class Client:
 
     def book(self, symbol, precision="P0"):
         """`Bitfinex book reference
-        <https://bitfinex.readme.io/v2/reference#rest-public-book>`_
+        <https://docs.bitfinex.com/reference#rest-public-book>`_
 
         The Order Book channel allow you to keep track of the state of the Bitfinex order book.
         It is provided on a price aggregated basis, with customizable precision.
@@ -409,7 +409,7 @@ class Client:
 
     def stats(self, **kwargs):
         """`Bitfinex stats reference
-        <https://bitfinex.readme.io/v2/reference#rest-public-stats>`_
+        <https://docs.bitfinex.com/reference#rest-public-stats>`_
 
         Various statistics about the requested pair.
 
@@ -534,7 +534,7 @@ class Client:
 
     def candles(self, *args, **kwargs):
         """`Bitfinex candles reference
-        <https://bitfinex.readme.io/v2/reference#rest-public-candles>`_
+        <https://docs.bitfinex.com/reference#rest-public-candles>`_
 
         Provides a way to access charting candle info
 
@@ -607,7 +607,7 @@ class Client:
     # REST CALCULATION ENDPOINTS
     def market_average_price(self, **kwargs):
         """`Bitfinex market average price reference
-        <https://bitfinex.readme.io/v2/reference#rest-calc-market-average-price>`_
+        <https://docs.bitfinex.com/reference#rest-public-calc-market-average-price>`_
 
         Calculate the average execution rate for Trading or Margin funding.
 
@@ -647,7 +647,7 @@ class Client:
 
     def foreign_exchange_rate(self, **kwargs):
         """`Bitfinex foreign exchange rate reference
-        <https://bitfinex.readme.io/v2/reference#foreign-exchange-rate>`_
+        <https://docs.bitfinex.com/reference#rest-public-calc-foreign-exchange-rate>`_
 
 
         Parameters
@@ -681,7 +681,7 @@ class Client:
     # REST AUTHENTICATED ENDPOINTS
     def wallets_balance(self):
         """`Bitfinex wallets balance reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-wallets>`_
+        <https://docs.bitfinex.com/reference#rest-auth-wallets>`_
 
         Get account wallets
 
@@ -718,7 +718,7 @@ class Client:
 
     def active_orders(self, trade_pair=""):
         """`Bitfinex active orders reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-orders>`_
+        <https://docs.bitfinex.com/reference#rest-auth-orders>`_
 
         Fetch active orders using rest api v2
 
@@ -781,7 +781,7 @@ class Client:
 
     def orders_history(self, trade_pair=None, **kwargs):
         """`Bitfinex orders history reference
-        <https://bitfinex.readme.io/v2/reference#orders-history>`_
+        <https://docs.bitfinex.com/reference#rest-auth-orders-history>`_
 
         Returns the most recent closed or canceled orders up to circa two weeks ago
 
@@ -859,7 +859,7 @@ class Client:
 
     def order_trades(self, trade_pair, order_id):
         """`Bitfinex order trades reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-order-trades>`_
+        <https://docs.bitfinex.com/reference#rest-auth-order-trades>`_
 
         Get Trades generated by an Order
 
@@ -909,7 +909,7 @@ class Client:
 
     def trades_history(self, trade_pair=None, **kwargs):
         """`Bitfinex trades history reference
-        <https://docs.bitfinex.com/v2/reference#rest-auth-trades-hist>`_
+        <https://docs.bitfinex.com/reference#rest-auth-trades-hist>`_
 
         List of trades
 
@@ -974,7 +974,7 @@ class Client:
 
     def active_positions(self):
         """`Bitfinex positions reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-positions>`_
+        <https://docs.bitfinex.com/reference#rest-auth-positions>`_
 
         Get active positions
 
@@ -1015,7 +1015,7 @@ class Client:
 
     def positions_history(self, **kwargs):
         """`Bitfinex positions history reference
-        <https://docs.bitfinex.com/v2/reference#positions-history>`_
+        <https://docs.bitfinex.com/reference#rest-auth-positions-hist>`_
 
         Return the positions of a user between two dates
 
@@ -1072,7 +1072,7 @@ class Client:
 
     def positions_audit(self, **kwargs):
         """`Bitfinex positions audit reference
-        <https://docs.bitfinex.com/v2/reference#positions-audit>`_
+        <https://docs.bitfinex.com/reference#rest-auth-positions-audit>`_
 
         Return and audit of the positions of a user that correspond to the ids send
 
@@ -1136,7 +1136,7 @@ class Client:
 
     def funding_offers(self, symbol=""):
         """`Bitfinex funding offers reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-funding-offers>`_
+        <https://docs.bitfinex.com/reference#rest-auth-funding-offers>`_
 
         Get active funding offers.
 
@@ -1194,7 +1194,7 @@ class Client:
 
     def funding_offers_history(self, symbol="", **kwargs):
         """`Bitfinex funding offers hist reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-funding-offers-hist>`_
+        <https://docs.bitfinex.com/reference#rest-auth-funding-offers-hist>`_
 
         Get past inactive funding offers. Limited to last 3 days.
 
@@ -1262,7 +1262,7 @@ class Client:
 
     def funding_loans(self, symbol=""):
         """`Bitfinex funding loans reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-funding-loans>`_
+        <https://docs.bitfinex.com/reference#rest-auth-funding-loans>`_
 
         Funds not used in active positions
 
@@ -1319,7 +1319,7 @@ class Client:
 
     def funding_loans_history(self, symbol="", **kwargs):
         """`Bitfinex funding loans history reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-funding-loans-hist>`_
+        <https://docs.bitfinex.com/reference#rest-auth-funding-loans-hist>`_
 
         Inactive funds not used in positions. Limited to last 3 days.
 
@@ -1386,7 +1386,7 @@ class Client:
 
     def funding_credits(self, symbol=""):
         """`Bitfinex funding credits reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-funding-credits>`_
+        <https://docs.bitfinex.com/reference#rest-auth-funding-credits>`_
 
         Funds used in active positions
 
@@ -1443,7 +1443,7 @@ class Client:
 
     def funding_credits_history(self, symbol="", **kwargs):
         """`Bitfinex funding credits history reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-funding-credits-hist>`_
+        <https://docs.bitfinex.com/reference#rest-auth-funding-credits-hist>`_
 
         Inactive funds used in positions. Limited to last 3 days.
 
@@ -1511,7 +1511,7 @@ class Client:
 
     def funding_trades(self, symbol="", **kwargs):
         """`Bitfinex funding trades hitory reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-funding-trades-hist>`_
+        <https://docs.bitfinex.com/reference#rest-auth-funding-trades-hist>`_
 
         Get funding trades
 
@@ -1565,7 +1565,7 @@ class Client:
 
     def margin_info(self, tradepair="base"):
         """`Bitfinex margin info reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-info-margin>`_
+        <https://docs.bitfinex.com/reference#rest-auth-info-margin>`_
 
         Get account margin info
 
@@ -1622,7 +1622,7 @@ class Client:
 
     def funding_info(self, tradepair):
         """`Bitfinex funding info reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-info-funding>`_
+        <https://docs.bitfinex.com/reference#rest-auth-info-funding>`_
 
         Get account funding info
 
@@ -1664,7 +1664,7 @@ class Client:
 
     def movements(self, currency="", **kwargs):
         """`Bitfinex movements reference
-        <https://bitfinex.readme.io/v2/reference#movements>`_
+        <https://docs.bitfinex.com/reference#rest-auth-movements>`_
 
         View your past deposits/withdrawals.
 
@@ -1733,7 +1733,7 @@ class Client:
 
     def performance(self, period="1D"):
         """`Bitfinex performance reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-performance>`_
+        <https://docs.bitfinex.com/reference#rest-auth-performance>`_
 
         Get account historical daily performance (work in progress on Bitfinex side)
 
@@ -1765,7 +1765,7 @@ class Client:
 
     def alert_list(self):
         """`Bitfinex list alerts reference
-        <https://docs.bitfinex.com/v2/reference#rest-auth-alert-list>`_
+        <https://docs.bitfinex.com/reference#rest-auth-alerts>`_
 
         List of active alerts
 
@@ -1800,7 +1800,7 @@ class Client:
 
     def alert_set(self, alert_type, symbol, price):
         """`Bitfinex auth alert set reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-alert-set>`_
+        <https://docs.bitfinex.com/reference#rest-auth-alert-set>`_
 
         Sets up a price alert at the given value
 
@@ -1848,7 +1848,7 @@ class Client:
 
     def alert_delete(self, symbol, price):
         """`Bitfinex auth alert delete reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-alert-delete>`_
+        <https://docs.bitfinex.com/reference#rest-auth-alert-del>`_
 
 
         Bitfinex always returns [True] no matter if the request deleted an alert or not
@@ -1884,7 +1884,7 @@ class Client:
 
     def calc_available_balance(self, symbol, direction, rate, order_type):
         """`Bitfinex calc balance available reference
-        <https://bitfinex.readme.io/v2/reference#rest-auth-calc-bal-avail>`_
+        <https://docs.bitfinex.com/reference#rest-auth-calc-order-avail>`_
 
         Calculate available balance for order/offer
         example : calc_available_balance("tIOTUSD","1","1.13","EXCHANGE")
@@ -1933,7 +1933,7 @@ class Client:
 
     def ledgers(self, currency=""):
         """`Bitfinex ledgers reference
-        <https://bitfinex.readme.io/v2/reference#ledgers>`_
+        <https://docs.bitfinex.com/reference#rest-auth-ledgers>`_
 
         View your past ledger entries.
 
@@ -1978,7 +1978,7 @@ class Client:
 
     def user_settings_read(self, pkey):
         """`Bitfinex user settings read reference
-        <https://bitfinex.readme.io/v2/reference#user-settings-read>`_
+        <https://docs.bitfinex.com/reference#rest-auth-settings>`_
 
         Read user settings
 
@@ -2017,7 +2017,7 @@ class Client:
 
     def user_settings_write(self, pkey):
         """`Bitfinex user settings write reference
-        <https://bitfinex.readme.io/v2/reference#user-settings-write>`_
+        <https://docs.bitfinex.com/reference#rest-auth-settings-set>`_
 
         Write user settings
 
@@ -2030,7 +2030,7 @@ class Client:
 
     def user_settings_delete(self, pkey):
         """`Bitfinex user settings delete reference
-        <https://bitfinex.readme.io/v2/reference#user-settings-delete>`_
+        <https://docs.bitfinex.com/reference#rest-auth-settings-del>`_
 
         Delete user settings
 
