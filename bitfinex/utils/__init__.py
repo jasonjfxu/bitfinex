@@ -2,6 +2,7 @@
 import re
 import time
 from datetime import datetime
+import logging
 
 def create_cid():
     """Create a new Client order id. Based on timestamp multiplied to 10k to
@@ -41,10 +42,10 @@ def get_nonce(multiplier):
     return str(float(time.time()) * multiplier)
 
 TRADE_SYMBOL_MISSING = re.compile(r"^[a-zA-Z]{6}$")
-"""Regular explression used to match trade symbols without a leading t (e.g. BTCUSD)"""
+"""Regular expression used to match trade symbols without a leading t (e.g. BTCUSD)"""
 
 FUNDING_SYMBOL_MISSING = re.compile(r"^[a-zA-Z]{3}$")
-"""Regular explression used to match funcing symbols without a leading f (e.g. BTC)"""
+"""Regular expression used to match financing symbols without a leading f (e.g. BTC)"""
 
 def order_symbol(symbol, capital=True):
     """Convinience function for skipping t or f before symbols for trade and
@@ -70,3 +71,21 @@ def order_symbol(symbol, capital=True):
         return "f{}".format(_symbol)
 
     return symbol
+
+def get_bitfinex_logger(name):
+    """ Utility method for class specific logging
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    logger.propagate = True
+    if not logger.handlers:
+        # Add console log
+        console = logging.StreamHandler()
+        formatter_console = logging.Formatter(
+            '%(asctime)s %(levelname) -10s %(name) -10s'
+            ' %(funcName) -10s %(lineno) -5d  %(message)s'
+        )
+        console.setFormatter(formatter_console)
+        console.setLevel(logging.INFO)
+        logger.addHandler(console)
+    return logger

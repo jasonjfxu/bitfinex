@@ -19,7 +19,7 @@ VERSION = "v2"
 
 # HTTP request timeout in seconds
 TIMEOUT = 5.0
-
+LOGGER = utils.get_bitfinex_logger(__name__)
 
 class BitfinexException(Exception):
     """
@@ -622,6 +622,18 @@ class Client:
         response = self._get(path, **kwargs)
         return response
 
+    def configs(self):
+        raise NotImplementedError
+
+    def status(self):
+        raise NotImplementedError
+
+    def liquidation_feed(self):
+        raise NotImplementedError
+
+    def leaderboards(self):
+        raise NotImplementedError
+
     # REST CALCULATION ENDPOINTS
     def market_average_price(self, **kwargs):
         """`Bitfinex market average price reference
@@ -734,6 +746,9 @@ class Client:
         response = self._post(path, raw_body, verify=True)
         return response
 
+    def wallets_history(self):
+        raise NotImplementedError
+
     def active_orders(self, trade_pair=""):
         """`Bitfinex active orders reference
         <https://docs.bitfinex.com/reference#rest-auth-orders>`_
@@ -796,6 +811,21 @@ class Client:
         path = "v2/auth/r/orders/{}".format(trade_pair)
         response = self._post(path, raw_body, verify=True)
         return response
+
+    def submit_order(self):
+        raise NotImplementedError
+
+    def order_update(self):
+        raise NotImplementedError
+
+    def cancel_order(self):
+        raise NotImplementedError
+
+    def order_multi_op(self):
+        raise NotImplementedError
+
+    def cancel_order_multi(self):
+        raise NotImplementedError
 
     def orders_history(self, trade_pair=None, **kwargs):
         """`Bitfinex orders history reference
@@ -981,12 +1011,109 @@ class Client:
 
         """
 
-        body = kwargs
-        raw_body = json.dumps(body)
+        raw_body = json.dumps(kwargs)
         if trade_pair is None:
             path = "v2/auth/r/trades/hist"  # will load history for all pairs
         else:
             path = "v2/auth/r/trades/{}/hist".format(trade_pair)
+        response = self._post(path, raw_body, verify=True)
+        return response
+
+    def ledgers(self, currency=""):
+        """`Bitfinex ledgers reference
+        <https://docs.bitfinex.com/reference#rest-auth-ledgers>`_
+
+        View your past ledger entries.
+
+        Parameters
+        ----------
+        Currency : str
+            Currency (BTC, ...)
+
+        Returns
+        -------
+        list
+             ::
+
+            [
+              [
+                ID,
+                CURRENCY,
+                MTS,
+                AMOUNT,
+                BALANCE,
+                DESCRIPTION
+              ],
+              ...
+            ]
+
+        Example
+        --------
+         ::
+
+            bfx_client.ledgers('IOT')
+
+        """
+        raw_body = json.dumps(kwargs)
+        add_currency = "{}/".format(currency.upper()) if currency else ""
+        path = "v2/auth/r/ledgers/{}hist".format(add_currency)
+        response = self._post(path, raw_body, verify=True)
+        return response
+
+    def margin_info(self, tradepair="base"):
+        """`Bitfinex margin info reference
+        <https://docs.bitfinex.com/reference#rest-auth-info-margin>`_
+
+        Get account margin info
+
+        Parameters
+        ----------
+        key : str
+            "base" | SYMBOL
+
+        Returns
+        -------
+        list
+             ::
+
+                # margin base
+                [
+                  "base",
+                  [
+                    USER_PL,
+                    USER_SWAPS,
+                    MARGIN_BALANCE,
+                    MARGIN_NET,
+                    ...
+                  ]
+                ]
+
+                # margin symbol
+                [
+                  SYMBOL,
+                  [
+                    TRADABLE_BALANCE,
+                    GROSS_BALANCE,
+                    BUY,
+                    SELL,
+                    ...
+                  ]
+                ]
+
+        Examples
+        --------
+         ::
+
+            bfx_client.margin_info()
+
+            bfx_client.margin_info('base')
+
+            bfx_client.margin_info('tIOTUSD')
+
+        """
+        body = {}
+        raw_body = json.dumps(body)
+        path = "v2/auth/r/info/margin/{}".format(tradepair)
         response = self._post(path, raw_body, verify=True)
         return response
 
@@ -1030,6 +1157,9 @@ class Client:
         path = "v2/auth/r/positions"
         response = self._post(path, raw_body, verify=True)
         return response
+
+    def claim_position(self):
+        raise NotImplementedError
 
     def positions_history(self, **kwargs):
         """`Bitfinex positions history reference
@@ -1152,6 +1282,9 @@ class Client:
         response = self._post(path, raw_body, verify=True)
         return response
 
+    def derivative_position_collateral(self):
+        raise NotImplementedError
+
     def funding_offers(self, symbol=""):
         """`Bitfinex funding offers reference
         <https://docs.bitfinex.com/reference#rest-auth-funding-offers>`_
@@ -1209,6 +1342,24 @@ class Client:
         path = "v2/auth/r/funding/offers/{}".format(symbol)
         response = self._post(path, raw_body, verify=True)
         return response
+
+    def submit_funding_offer(self):
+        raise NotImplementedError
+
+    def cancel_funding_offer(self):
+        raise NotImplementedError
+
+    def cancel_all_funding_offers(self):
+        raise NotImplementedError
+
+    def funding_close(self):
+        raise NotImplementedError
+
+    def funding_auto_renew(self):
+        raise NotImplementedError
+
+    def keep_funding(self):
+        raise NotImplementedError
 
     def funding_offers_history(self, symbol="", **kwargs):
         """`Bitfinex funding offers hist reference
@@ -1581,63 +1732,6 @@ class Client:
         response = self._post(path, raw_body, verify=True)
         return response
 
-    def margin_info(self, tradepair="base"):
-        """`Bitfinex margin info reference
-        <https://docs.bitfinex.com/reference#rest-auth-info-margin>`_
-
-        Get account margin info
-
-        Parameters
-        ----------
-        key : str
-            "base" | SYMBOL
-
-        Returns
-        -------
-        list
-             ::
-
-                # margin base
-                [
-                  "base",
-                  [
-                    USER_PL,
-                    USER_SWAPS,
-                    MARGIN_BALANCE,
-                    MARGIN_NET,
-                    ...
-                  ]
-                ]
-
-                # margin symbol
-                [
-                  SYMBOL,
-                  [
-                    TRADABLE_BALANCE,
-                    GROSS_BALANCE,
-                    BUY,
-                    SELL,
-                    ...
-                  ]
-                ]
-
-        Examples
-        --------
-         ::
-
-            bfx_client.margin_info()
-
-            bfx_client.margin_info('base')
-
-            bfx_client.margin_info('tIOTUSD')
-
-        """
-        body = {}
-        raw_body = json.dumps(body)
-        path = "v2/auth/r/info/margin/{}".format(tradepair)
-        response = self._post(path, raw_body, verify=True)
-        return response
-
     def funding_info(self, tradepair):
         """`Bitfinex funding info reference
         <https://docs.bitfinex.com/reference#rest-auth-info-funding>`_
@@ -1679,6 +1773,18 @@ class Client:
         path = "v2/auth/r/info/funding/{}".format(tradepair)
         response = self._post(path, raw_body, verify=True)
         return response
+
+    def user_info(self):
+        raise NotImplementedError
+
+    def transfer_between_wallets(self):
+        raise NotImplementedError
+
+    def deposit_address(self):
+        raise NotImplementedError
+
+    def withdrawal(self):
+        raise NotImplementedError
 
     def movements(self, currency="", **kwargs):
         """`Bitfinex movements reference
@@ -1746,38 +1852,6 @@ class Client:
         raw_body = json.dumps(body)
         add_currency = "{}/".format(currency.upper()) if currency else ""
         path = "v2/auth/r/movements/{}hist".format(add_currency)
-        response = self._post(path, raw_body, verify=True)
-        return response
-
-    def performance(self, period="1D"):
-        """`Bitfinex performance reference
-        <https://docs.bitfinex.com/reference#rest-auth-performance>`_
-
-        Get account historical daily performance (work in progress on Bitfinex side)
-
-        This endpoint is still under active development so you might experience unexpected behavior
-        from it.
-
-        Currently not working : bitfinex.rest.restv2.BitfinexException:
-        (500, 'Internal Server Error', ['error', 10020, 'method: invalid'])
-
-        Returns
-        -------
-        list
-            The list contains the following information::
-
-                [ CURRENT_RATE ]
-
-        Example
-        -------
-         ::
-
-            bfx_client.performance()
-
-        """
-        body = {}
-        raw_body = json.dumps(body)
-        path = "v2/auth/r/stats/perf:{}/hist".format(period)
         response = self._post(path, raw_body, verify=True)
         return response
 
@@ -1949,50 +2023,18 @@ class Client:
         response = self._post(path, raw_body, verify=True)
         return response
 
-    def ledgers(self, currency=""):
-        """`Bitfinex ledgers reference
-        <https://docs.bitfinex.com/reference#rest-auth-ledgers>`_
+    def user_settings_write(self, pkey):
+        """`Bitfinex user settings write reference
+        <https://docs.bitfinex.com/reference#rest-auth-settings-set>`_
 
-        View your past ledger entries.
+        Write user settings
 
-        Parameters
-        ----------
-        Currency : str
-            Currency (BTC, ...)
-
-        Returns
+        Warning
         -------
-        list
-             ::
-
-            [
-              [
-                ID,
-                CURRENCY,
-                null,
-                TIMESTAMP_MILLI,
-                null,
-                AMOUNT,
-                BALANCE,
-                null,
-                DESCRIPTION
-              ],
-              ...
-            ]
-
-        Example
-        --------
-         ::
-
-            bfx_client.ledgers('IOT')
+        Not Implemented
 
         """
-        body = {}
-        raw_body = json.dumps(body)
-        add_currency = "{}/".format(currency.upper()) if currency else ""
-        path = "v2/auth/r/ledgers/{}hist".format(add_currency)
-        response = self._post(path, raw_body, verify=True)
-        return response
+        raise NotImplementedError
 
     def user_settings_read(self, pkey):
         """`Bitfinex user settings read reference
@@ -2032,19 +2074,6 @@ class Client:
         path = "v2/auth/r/settings"
         response = self._post(path, raw_body, verify=True)
         return response
-
-    def user_settings_write(self, pkey):
-        """`Bitfinex user settings write reference
-        <https://docs.bitfinex.com/reference#rest-auth-settings-set>`_
-
-        Write user settings
-
-        Warning
-        -------
-        Not Implemented
-
-        """
-        raise NotImplementedError
 
     def user_settings_delete(self, pkey):
         """`Bitfinex user settings delete reference
