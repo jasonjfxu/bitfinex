@@ -234,6 +234,54 @@ def test_candles_response(client, requests_mock):
     assert candles_response[0][1] == 8140.8
 
 
+def test_1_configs_url_is_ok(client, requests_mock):
+    response_text = json.dumps([None])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.configs("fees")
+    assert requests_mock.request_history[0].url == (
+        'https://api-pub.bitfinex.com/v2/conf/pub:fees'
+    )
+
+def test_2_configs_url_is_ok(client, requests_mock):
+    response_text = json.dumps([None])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.configs("map","currency","sym")
+    assert requests_mock.request_history[0].url == (
+        'https://api-pub.bitfinex.com/v2/conf/pub:map:currency:sym'
+    )
+
+def test_configs_list_url_is_ok(client, requests_mock):
+    response_text = json.dumps([None])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+
+    cfgs = [
+        {
+            "action": "fees"
+        },
+        {
+            "action": "map",
+            "obj": "currency",
+            "detail": "sym"
+        }
+    ]
+
+    client.configs_list(cfgs)
+    assert requests_mock.request_history[0].url == (
+        'https://api-pub.bitfinex.com/v2/conf/pub:fees,pub:map:currency:sym'
+    )
+
 def test_market_avg_url_is_ok(client, requests_mock):
     response_text = json.dumps([7912.26508244, 100])
     requests_mock.register_uri(
@@ -1093,19 +1141,6 @@ def test_movements_response(client, requests_mock):
     assert isinstance(m_response, list)
     assert m_response[0][1] == 'IOT'
     assert m_response[0][9] == 'COMPLETED'
-
-
-def test_performance_url_is_ok(client, requests_mock):
-    response_text = json.dumps([])
-    requests_mock.register_uri(
-        rmock.ANY,
-        rmock.ANY,
-        text=response_text
-    )
-    client.performance()
-    assert requests_mock.request_history[0].url == (
-        'https://api.bitfinex.com/v2/auth/r/stats/perf:1D/hist'
-    )
 
 
 def test_alert_list_url_is_ok(client, requests_mock):

@@ -622,8 +622,118 @@ class Client:
         response = self._get(path, **kwargs)
         return response
 
-    def configs(self):
-        raise NotImplementedError
+
+    def configs(self, action : str, obj=None, detail=None):
+        """`Bitfinex configs reference
+        <https://docs.bitfinex.com/reference#rest-public-conf>`_
+
+        Fetch currency and symbol site configuration data.
+
+        A variety of types of config data can be fetched by constructing a path with an Action, Object, and conditionally a Detail value.
+
+        Multiple sets of parameters may be passed, in a single request, to fetch multiple parts of the sites currency and symbol configuration data.
+
+        Parameters
+        ----------
+        action : str
+            Valid action values: : 'map', 'list', 'info', 'fees'
+
+        Object : str
+            Valid object values for the map action: 'currency', 'tx'.
+
+            Valid object values for the list action: 'currency', 'pair', 'competitions'.
+
+            Valid object values for the info action: 'pair'
+
+            Valid object values for the fees action: none
+
+        Detail : str
+            The detail parameter is only required for the below action:object values:
+
+            A map:currency request requires one of the following detail values: 
+            'sym', 'label', 'unit', 'undl', 'pool', 'explorer'.
+
+            A map:tx request requires the following detail value: 'method'.
+
+            A list:pair request requires one of the following detail values:
+            'exchange', 'margin'
+
+        Returns
+        -------
+        list
+             ::
+
+                []
+
+        Examples
+        --------
+         ::
+
+            bfx_client.configs("fees")
+            bfx_client.configs("map","currency","sym")
+
+        """
+        path = f"v2/conf/pub:{action}"
+        if obj:
+            path = f'{path}:{obj}'
+        if detail:
+            path = f'{path}:{detail}'
+
+        response = self._get(path)
+        return response
+
+    def configs_list(self, cfg_list : list):
+        """`Bitfinex configs reference
+        <https://docs.bitfinex.com/reference#rest-public-conf>`_
+
+        Instead of performing a request for each configuration item it is possible to fetch
+        multiple configurations in a single request.
+
+        Parameters
+        ----------
+        cfg_list : list
+            Contains a list of dictionaries that have the following keys : action, obj, detail
+
+        Returns
+        -------
+        list
+             ::
+
+                []
+
+        Examples
+        --------
+         ::
+
+            bfx_client = Client("key", "secret")
+            cfgs = [
+                {
+                    "action": "fees"
+                },
+                {
+                    "action": "map",
+                    "obj": "currency",
+                    "detail": "sym"
+                }
+            ]
+
+            bfx_client.configs_list(cfgs)
+
+        """
+        cfg_params = []
+        for cfg in cfg_list:
+            request = f"pub:{cfg['action']}"
+            if 'obj' in cfg:
+                request = f"{request}:{cfg['obj']}"
+            if 'detail' in cfg:
+                request = f"{request}:{cfg['detail']}"
+            cfg_params.append(request)
+
+
+        path = f"v2/conf/{','.join(cfg_params)}" 
+        LOGGER.info(path)
+        response = self._get(path)
+        return response
 
     def status(self):
         raise NotImplementedError
@@ -1054,7 +1164,8 @@ class Client:
             bfx_client.ledgers('IOT')
 
         """
-        raw_body = json.dumps(kwargs)
+        body = {}
+        raw_body = json.dumps(body)
         add_currency = "{}/".format(currency.upper()) if currency else ""
         path = "v2/auth/r/ledgers/{}hist".format(add_currency)
         response = self._post(path, raw_body, verify=True)

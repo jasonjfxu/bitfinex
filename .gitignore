@@ -125,3 +125,6 @@ dmypy.json
 
 # ide
 .vscode/
+
+# mac os garbage
+.DS_Store
