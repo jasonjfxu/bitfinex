@@ -735,8 +735,136 @@ class Client:
         response = self._get(path)
         return response
 
-    def status(self):
-        raise NotImplementedError
+    def status(self, status_type, keys):
+        """`Bitfinex status reference
+        <https://docs.bitfinex.com/reference#rest-public-status>`_
+
+        Endpoint used to receive different types of platform information 
+        - currently supports derivatives pair status only.
+
+        Parameters
+        ----------
+        status_type : string
+            Path parameter. The status message type. Valid values: deriv
+
+        keys : string
+            The key or keys (Separate by commas) of the pairs to fetch status information.
+            To fetch information for all pairs use the key value 'ALL',
+            (ex: tBTCF0:USTF0 or tETHF0:USTF0)
+
+        Returns
+        -------
+        list
+             ::
+
+                [
+                  [
+                    KEY,
+                    MTS,
+                    PLACEHOLDER, 
+                    DERIV_PRICE,
+                    SPOT_PRICE,
+                    PLACEHOLDER,
+                    INSURANCE_FUND_BALANCE,
+                    PLACEHOLDER,
+                    NEXT_FUNDING_EVT_TIMESTAMP_MS,
+                    NEXT_FUNDING_ACCRUED,
+                    NEXT_FUNDING_STEP,
+                    PLACEHOLDER,
+                    CURRENT_FUNDING,
+                    PLACEHOLDER,
+                    PLACEHOLDER,
+                    MARK_PRICE,
+                    PLACEHOLDER,
+                    PLACEHOLDER,
+                    OPEN_INTEREST
+                  ]
+                ]
+
+        Examples
+        --------
+         ::
+
+            bfx_client.status("deriv","ALL")
+
+            bfx_client.status("deriv","tBTCF0:USTF0")
+
+        """
+
+        path = f"v2/status/{status_type}?keys={keys}" 
+        response = self._get(path)
+        return response
+
+    def status_hist(self, status_type, key, start=0, end=0, sort=1, limit=100):
+        """`Bitfinex status reference
+        <https://docs.bitfinex.com/reference#rest-public-status>`_
+
+        Endpoint used to receive different types of platform information 
+        - currently supports derivatives pair status only.
+
+        Parameters
+        ----------
+        status_type : string
+            Path parameter. The status message type. Valid values: deriv
+
+        key : string
+            The key of the pair to fetch historic information.
+            (ex: tBTCF0:USTF0 or tETHF0:USTF0)
+
+        start : string
+            Millisecond start time for /hist ( ex : 1568123933000)
+
+        end : string
+            Millisecond end time for /hist   (ex : 1570578740000)
+
+        sort : 
+            set to 1 for oldest > newest records , -1 for reverse
+
+        limit : 
+            Limit of retrieved records. (Max: 10000)
+
+        Returns
+        -------
+        list
+             ::
+
+                [
+                  [
+                    KEY,
+                    MTS,
+                    PLACEHOLDER, 
+                    DERIV_PRICE,
+                    SPOT_PRICE,
+                    PLACEHOLDER,
+                    INSURANCE_FUND_BALANCE,
+                    PLACEHOLDER,
+                    NEXT_FUNDING_EVT_TIMESTAMP_MS,
+                    NEXT_FUNDING_ACCRUED,
+                    NEXT_FUNDING_STEP,
+                    PLACEHOLDER,
+                    CURRENT_FUNDING,
+                    PLACEHOLDER,
+                    PLACEHOLDER,
+                    MARK_PRICE,
+                    PLACEHOLDER,
+                    PLACEHOLDER,
+                    OPEN_INTEREST
+                  ]
+                ]
+
+        Examples
+        --------
+         ::
+
+            bfx_client.status_hist("deriv", "tBTCF0:USTF0",start="1580020000000",end="1580058375000")
+
+        """
+
+
+        path = f"v2/status/{status_type}/{key}/hist?start={start}&end={end}&sort={sort}&limit={limit}" 
+        LOGGER.info(path)
+        response = self._get(path)
+        return response
 
     def liquidation_feed(self):
         raise NotImplementedError

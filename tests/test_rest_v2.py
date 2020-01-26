@@ -282,6 +282,30 @@ def test_configs_list_url_is_ok(client, requests_mock):
         'https://api-pub.bitfinex.com/v2/conf/pub:fees,pub:map:currency:sym'
     )
 
+def test_status_url_is_ok(client, requests_mock):
+    response_text = json.dumps([None])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.status("deriv","tBTCF0:USTF0")
+    assert requests_mock.request_history[0].url == (
+        'https://api-pub.bitfinex.com/v2/status/deriv?keys=tBTCF0:USTF0'
+    )
+
+def test_status_hist_url_is_ok(client, requests_mock):
+    response_text = json.dumps([None])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.status_hist("deriv", "tBTCF0:USTF0",start="1580020000000",end="1580058375000")
+    assert requests_mock.request_history[0].url == (
+        'https://api-pub.bitfinex.com/v2/status/deriv/tBTCF0:USTF0/hist?start=1580020000000&end=1580058375000&sort=1&limit=100'
+    )
+
 def test_market_avg_url_is_ok(client, requests_mock):
     response_text = json.dumps([7912.26508244, 100])
     requests_mock.register_uri(
