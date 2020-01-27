@@ -866,8 +866,70 @@ class Client:
         response = self._get(path)
         return response
 
-    def liquidation_feed(self):
-        raise NotImplementedError
+    def liquidation_feed(self, **kwargs):
+        """`Bitfinex Liquidation Feed reference
+        <https://docs.bitfinex.com/reference#rest-public-liquidations>`_
+
+        Endpoint to retrieve liquidations. By default it will retrieve the most recent liquidations,
+        but time-specific data can be retrieved using timestamps.
+
+        Parameters
+        ----------
+        start : Optional int
+            Millisecond start time
+
+        end : Optional int
+            Millisecond end time
+
+        limit : Optional int
+            Number of records (Max: 10000)
+
+        sort : Optional int
+            if = 1 it sorts results returned with old > new
+
+        Returns
+        -------
+        list
+             ::
+
+                [
+                 [
+                  ['pos',
+                   POS_ID,
+                   MTS,
+                   PLACEHOLDER,
+                   SYMBOL,
+                   AMOUNT,
+                   BASE_PRICE,
+                   PLACEHOLDER,
+                   IS_MATCH,
+                   IS_MARKET_SOLD,
+                   PLACEHOLDER,
+                   PRICE_ACQUIRED],
+                  ['pos',
+                   ...,]
+                 ]
+                ]
+
+        Examples
+        --------
+         ::
+
+            bfx_client.liquidation_feed(start="1580020000000",end="1580058375000");
+            bfx_client.liquidation_feed()
+
+        """
+
+
+        path = f"v2/liquidations/hist"
+        params="?"
+        for key, value in kwargs.items():
+            params = f"{params}{key}={value}&"
+        params = params[:-1]
+
+        path = path + params
+        response = self._get(path)
+        return response
 
     def leaderboards(self):
         raise NotImplementedError

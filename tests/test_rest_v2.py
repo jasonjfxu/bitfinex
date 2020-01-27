@@ -306,6 +306,30 @@ def test_status_hist_url_is_ok(client, requests_mock):
         'https://api-pub.bitfinex.com/v2/status/deriv/tBTCF0:USTF0/hist?start=1580020000000&end=1580058375000&sort=1&limit=100'
     )
 
+def test_1_liquidation_feed_url_is_ok(client, requests_mock):
+    response_text = json.dumps([None])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.liquidation_feed()
+    assert requests_mock.request_history[0].url == (
+        'https://api-pub.bitfinex.com/v2/liquidations/hist'
+    )
+
+def test_2_liquidation_feed_url_is_ok(client, requests_mock):
+    response_text = json.dumps([None])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.liquidation_feed(start=1580061000000, end=1580061814789.5999, limit=2, sort= -1)
+    assert requests_mock.request_history[0].url == (
+        'https://api-pub.bitfinex.com/v2/liquidations/hist?start=1580061000000&end=1580061814789.5999&limit=2&sort=-1'
+    )
+
 def test_market_avg_url_is_ok(client, requests_mock):
     response_text = json.dumps([7912.26508244, 100])
     requests_mock.register_uri(
