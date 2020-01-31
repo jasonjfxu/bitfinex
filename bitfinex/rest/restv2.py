@@ -105,7 +105,7 @@ class Client:
             try:
                 content = response.json()
             except JSONDecodeError:
-                content = response.text()
+                content = response.text
             raise BitfinexException(response.status_code, response.reason, content)
 
     def _public_post(self, path, payload, verify=False):
@@ -120,7 +120,7 @@ class Client:
             try:
                 content = response.json()
             except JSONDecodeError:
-                content = response.text()
+                content = response.text
             raise BitfinexException(response.status_code, response.reason, content)
 
     def _get(self, path, **params):
@@ -135,7 +135,7 @@ class Client:
             try:
                 content = response.json()
             except JSONDecodeError:
-                content = response.text()
+                content = response.text
             raise BitfinexException(response.status_code, response.reason, content)
 
     # REST PUBLIC ENDPOINTS
@@ -321,12 +321,13 @@ class Client:
         response = self._get(path)
         return response
 
-    def trades(self, symbol):
+    def trades(self, symbol, **kwargs):
         """`Bitfinex trades reference
         <https://docs.bitfinex.com/reference#rest-public-trades>`_
 
-        Trades endpoint includes all the pertinent details of the trade, such as price,
-        size and time.
+        The trades endpoint allows the retrieval of past public trades and includes details such as
+        price, size, and time. Optional parameters can be used to limit the number of results;
+        you can specify a start and end timestamp, a limit, and a sorting method.
 
         Parameters
         ----------
@@ -335,12 +336,24 @@ class Client:
             You can find the list of valid symbols by calling the `symbols <restv1.html#symbols>`_
             method
 
+        start : string
+            Millisecond start time for /hist ( ex : 1568123933000)
+
+        end : string
+            Millisecond end time for /hist   (ex : 1570578740000)
+
+        sort : 
+            set to 1 for oldest > newest records , -1 for reverse
+
+        limit : 
+            Limit of retrieved records. (Max: 10000)
+
         Returns
         -------
         list
              ::
 
-                # on trading pairs (ex. tBTCUSD)
+                // on trading pairs (ex. tBTCUSD)
                 [
                   [
                     ID,
@@ -349,7 +362,8 @@ class Client:
                     PRICE
                   ]
                 ]
-                # on funding currencies (ex. fUSD)
+
+                // on funding currencies (ex. fUSD)
                 [
                   [
                     ID,
@@ -360,20 +374,32 @@ class Client:
                   ]
                 ]
 
+                //trading
+                [[388063448,1567526214876,1.918524,10682]]
+
+                //funding
+                [[124486873,1567526287066,-210.69675707,0.00034369,2]]
+
         Examples
         --------
          ::
 
             bfx_client.trades('tIOTUSD')
             bfx_client.trades('fIOT')
-            bfx_client.trades('tBTCUSD')
+            bfx_client.trades('tBTCUSD', limit=1, sort=-1)
 
         """
-        path = "v2/trades/{}/hist".format(symbol)
+
+        params="?"
+        for key, value in kwargs.items():
+            params = f"{params}{key}={value}&"
+        params = params[:-1] # remove last & or ? if there are no optional parameters 
+
+        path = "v2/trades/{}/hist{}".format(symbol,params)
         response = self._get(path)
         return response
 
-    def book(self, symbol, precision="P0"):
+    def book(self, symbol, precision="P0", **kwargs):
         """`Bitfinex book reference
         <https://docs.bitfinex.com/reference#rest-public-book>`_
 
@@ -389,28 +415,71 @@ class Client:
             Level of price aggregation (P0, P1, P2, P3, R0).
             R0 means "gets the raw orderbook".
 
+        len : Optional str
+            Number of price points ("1", "25", "100")
+
         Returns
         -------
         list
              ::
 
-                # on trading pairs (ex. tBTCUSD)
+                // on trading pairs (ex. tBTCUSD)
                 [
                   [
                     PRICE,
                     COUNT,
                     AMOUNT
-                  ]
+                  ],
+                  ...
                 ]
-                # on funding currencies (ex. fUSD)
+
+                // on funding currencies (ex. fUSD)
                 [
                   [
                     RATE,
                     PERIOD,
                     COUNT,
                     AMOUNT
-                  ]
+                  ],
+                  ...
                 ]
+
+                // on raw books (precision of R0)
+                // on trading currencies:
+                [
+                  [
+                    ORDER_ID,
+                    PRICE,
+                    AMOUNT
+                  ],
+                  ...
+                ]
+
+                // on funding currencies:
+
+                [
+                  [
+                    ORDER_ID,
+                    PERIOD,
+                    RATE,
+                    AMOUNT
+                  ],
+                  ...
+                ]
+
+                //trading
+                [[8744.9,2,0.45603413],[8745,8,-3.64426815]]
+
+                //funding
+                [[0.0003301,30,1,-3862.874],[0.00027999,2,2,1843.05088178]]
+
+                //raw books
+
+                //trading
+                [[34006738527,8744.9,0.25603413],[34005496171,8745,-0.2]]
+
+                //funding
+                [[645902785,30,0.0003301,-3862.874],[649139359,2,0.0003168747915,52.36]]
 
         Examples
         --------
@@ -421,11 +490,16 @@ class Client:
             bfx_client.book('tBTCUSD')
 
         """
-        path = "v2/book/{}/{}".format(symbol, precision)
+        params="?"
+        for key, value in kwargs.items():
+            params = f"{params}{key}={value}&"
+        params = params[:-1] # remove last & or ? if there are no optional parameters 
+
+        path = "v2/book/{}/{}{}".format(symbol, precision, params)
         response = self._get(path)
         return response
 
-    def stats(self, **kwargs):
+    def stats(self, key, size, symbol, side="", section="last", **kwargs):
         """`Bitfinex stats reference
         <https://docs.bitfinex.com/reference#rest-public-stats>`_
 
@@ -443,114 +517,79 @@ class Client:
         Symbol : str
             The symbol you want information about.
 
-        Symbol2 : str
-            The symbol you want information about.
-
         Side : str
             Available values: "long", "short"
 
         Section : str
             Available values: "last", "hist"
 
-        sort : str
-            if = 1 it sorts results returned with old > new
+        start : Options str
+            Millisecond start time for /hist ( ex : 1568123933000)
+
+        end : Options str
+            Millisecond end time for /hist   (ex : 1570578740000)
+
+        sort : Options str
+            set to 1 for oldest > newest records , -1 for reverse
+
+        limit : Options str
+            Limit of retrieved records. (Max: 10000)
 
         Returns
         -------
         list
              ::
 
-                # response with Section = "last"
-                [
+                // response with Section = "last"
+                [ 
                   MTS,
                   VALUE
                 ]
-                # response with Section = "hist"
+                
+                // response with Section = "hist"
                 [
-                  [ MTS, VALUE ],
+                  [
+                   MTS,
+                   VALUE 
+                  ],
                   ...
                 ]
+                
+                //pos size
+                [[1573554000000,25957.94278561],[1573553940000,25964.29056204]]
+                
+                //funding size
+                [[1573560420000,374049888.4504578],[1573560360000,373962908.58560276]]
+                
+                //credits size
+                [[1573560420000,369005353.5945115],[1573560360000,368918780.2238935]]
+                
+                //credits size sym
+                [[1573560480000,141144084.0479222],[1573560420000,141144084.0479222]]
 
         Examples
         --------
          ::
 
-            PARAMS = {
-                'key': 'funding.size',
-                'size': '1m',
-                'symbol': 'fUSD',
-                'section': 'hist',
-                'sort': '0'
-            }
-            bfx_client.stats(**PARAMS)              # statistics
-
-            PARAMS = {
-                'key': 'credits.size',
-                'size': '1m',
-                'symbol': 'fUSD',
-                'section': 'hist',
-                'sort': '0'
-            }
-            bfx_client.stats(**PARAMS)              # statistics
-
-            PARAMS = {
-                'key': 'pos.size',
-                'size': '1m',
-                'symbol': 'tIOTUSD',
-                'side': 'short',
-                'section': 'hist',
-                'sort': '0'
-            }
-            bfx_client.stats(**PARAMS)              # statistics
-
-            PARAMS = {
-                'key': 'credits.size.sym',
-                'size': '1m',
-                'symbol': 'fUSD',
-                'symbol2': 'tBTCUSD',
-                'section': 'hist',
-                'sort': '0'
-            }
+            bfx_client.stats('funding.size', '1m', 'fUSD', section="hist", limit=1)
+            bfx_client.stats('pos.size', '1m', 'tBTCUSD', side="long", section="hist", limit=1)
+            bfx_client.stats('credits.size', '1m', 'fUSD', section="hist", limit=1)
+            bfx_client.stats('credits.size.sym', '1m', 'fUSD:tBTCUSD', section="hist", limit=1)
 
         """
-        key_values = ['funding.size', 'credits.size', 'credits.size.sym', 'pos.size']
-        if kwargs['key'] not in key_values:
-            key_values = " ".join(key_values)
-            msg = "Key must have one of the following values : {}".format(key_values)
-            raise ValueError(msg)
+        side = f":{side}" if side else ""
+        path = f"v2/stats1/{key}:{size}:{symbol}{side}/{section}"
 
-        common_stats_url = "v2/stats1/{}:{}:{}".format(
-            kwargs['key'],
-            kwargs['size'],
-            kwargs['symbol']
-        )
-
-        if kwargs['key'] == 'pos.size':
-            custom_stats_url = ":{}/{}?sort={}".format(
-                kwargs['side'],
-                kwargs['section'],
-                str(kwargs['sort'])
-            )
-
-        if kwargs['key'] in ['funding.size', 'credits.size']:
-            custom_stats_url = "/{}?sort={}".format(
-                kwargs['section'],
-                str(kwargs['sort'])
-            )
-
-        if kwargs['key'] == 'credits.size.sym':
-            custom_stats_url = ":{}/{}?sort={}".format(
-                kwargs['symbol2'],
-                kwargs['section'],
-                str(kwargs['sort'])
-            )
-
-        path = "".join([common_stats_url, custom_stats_url])
+        params="?"
+        for key, value in kwargs.items():
+            params = f"{params}{key}={value}&"
+        params = params[:-1]
+        path = path + params
 
         response = self._get(path)
         return response
 
-    def candles(self, *args, **kwargs):
+    def candles(self, timeframe, symbol, section, period="", **kwargs):
         """`Bitfinex candles reference
         <https://docs.bitfinex.com/reference#rest-public-candles>`_
 
@@ -558,18 +597,22 @@ class Client:
 
         Parameters
         ----------
-        timeFrame : str
+        timeframe : str
             Available values: '1m', '5m', '15m', '30m', '1h', '3h', '6h', '12h',
             '1D', '7D', '14D', '1M'
 
         symbol : str
-            The symbol you want information about.
+            The symbol you want information about. (eg : tBTCUSD, tETHUSD, fUSD, fBTC)
 
         section : str
             Available values: "last", "hist"
 
+        period : str
+            Funding period. Only required for funding candles. 
+            Enter after the symbol (trade:1m:fUSD:p30/hist).
+
         limit : int
-            Number of candles requested
+            Number of candles requested (Max: 10000)
 
         start : str
             Filter start (ms)
@@ -586,14 +629,7 @@ class Client:
              ::
 
                 # response with Section = "last"
-                [
-                  MTS,
-                  OPEN,
-                  CLOSE,
-                  HIGH,
-                  LOW,
-                  VOLUME
-                ]
+                [ MTS, OPEN, CLOSE, HIGH, LOW, VOLUME ]
 
                 # response with Section = "hist"
                 [
@@ -612,14 +648,20 @@ class Client:
             bfx_client.candles("1h", "tBTCUSD", "hist", limit='1')
             bfx_client.candles("1h", "tBTCUSD", "last")
 
+            # funding candles
+
+            bfx_client.candles("1m", "fUSD", "hist", period="p30", limit=1)
+
         """
-        margs = list(args)
-        section = margs.pop()
-        path = "v2/candles/trade"
-        for arg in margs:
-            path = path + ":" + arg
-        path += "/{}".format(section)
-        response = self._get(path, **kwargs)
+        period = f":{period}" if period else ""
+        path = f"v2/candles/trade:{timeframe}:{symbol}{period}/{section}"
+
+        params="?"
+        for key, value in kwargs.items():
+            params = f"{params}{key}={value}&"
+        path = path + params[:-1]
+
+        response = self._get(path)
         return response
 
 
@@ -735,7 +777,7 @@ class Client:
         response = self._get(path)
         return response
 
-    def status(self, status_type, keys):
+    def status(self, status_type, keys, **kwargs):
         """`Bitfinex status reference
         <https://docs.bitfinex.com/reference#rest-public-status>`_
 
@@ -750,65 +792,6 @@ class Client:
         keys : string
             The key or keys (Separate by commas) of the pairs to fetch status information.
             To fetch information for all pairs use the key value 'ALL',
-            (ex: tBTCF0:USTF0 or tETHF0:USTF0)
-
-        Returns
-        -------
-        list
-             ::
-
-                [
-                  [
-                    KEY,
-                    MTS,
-                    PLACEHOLDER, 
-                    DERIV_PRICE,
-                    SPOT_PRICE,
-                    PLACEHOLDER,
-                    INSURANCE_FUND_BALANCE,
-                    PLACEHOLDER,
-                    NEXT_FUNDING_EVT_TIMESTAMP_MS,
-                    NEXT_FUNDING_ACCRUED,
-                    NEXT_FUNDING_STEP,
-                    PLACEHOLDER,
-                    CURRENT_FUNDING,
-                    PLACEHOLDER,
-                    PLACEHOLDER,
-                    MARK_PRICE,
-                    PLACEHOLDER,
-                    PLACEHOLDER,
-                    OPEN_INTEREST
-                  ]
-                ]
-
-        Examples
-        --------
-         ::
-
-            bfx_client.status("deriv","ALL")
-
-            bfx_client.status("deriv","tBTCF0:USTF0")
-
-        """
-
-        path = f"v2/status/{status_type}?keys={keys}" 
-        response = self._get(path)
-        return response
-
-    def status_hist(self, status_type, key, start=0, end=0, sort=1, limit=100):
-        """`Bitfinex status reference
-        <https://docs.bitfinex.com/reference#rest-public-status>`_
-
-        Endpoint used to receive different types of platform information 
-        - currently supports derivatives pair status only.
-
-        Parameters
-        ----------
-        status_type : string
-            Path parameter. The status message type. Valid values: deriv
-
-        key : string
-            The key of the pair to fetch historic information.
             (ex: tBTCF0:USTF0 or tETHF0:USTF0)
 
         start : string
@@ -856,12 +839,23 @@ class Client:
         --------
          ::
 
-            bfx_client.status_hist("deriv", "tBTCF0:USTF0",start="1580020000000",end="1580058375000")
+            bfx_client.status("deriv","ALL")
+
+            bfx_client.status("deriv","tBTCF0:USTF0")
+
+            bfx_client.status("deriv", "tBTCF0:USTF0",start="1580020000000",end="1580058375000")
+
 
         """
 
+        path = f"v2/status/{status_type}?keys={keys}"
 
-        path = f"v2/status/{status_type}/{key}/hist?start={start}&end={end}&sort={sort}&limit={limit}" 
+        params="?"
+        for key, value in kwargs.items():
+            params = f"{params}{key}={value}&"
+        params = params[:-1]
+        if params:
+            path = f"v2/status/{status_type}/{keys}/hist{params}"
         LOGGER.info(path)
         response = self._get(path)
         return response
@@ -925,14 +919,85 @@ class Client:
         params="?"
         for key, value in kwargs.items():
             params = f"{params}{key}={value}&"
-        params = params[:-1]
 
-        path = path + params
+        path = path + params[:-1]
         response = self._get(path)
         return response
 
-    def leaderboards(self):
-        raise NotImplementedError
+    def leaderboards(self, key, timeframe, symbol, section="hist", **kwargs):
+        """`Bitfinex Liquidation Feed reference
+        <https://docs.bitfinex.com/reference#rest-public-rankings>`_
+
+        The leaderboards endpoint allows you to retrieve leaderboard standings for unrealized
+        profit (period delta), unrealized profit (inception), volume, and realized profit.
+
+        Parameters
+        ----------
+        key : str 
+            Allowed values: "plu_diff" for unrealized profit (period delta); "plu" for unrealized 
+            profit (inception); "vol" for volume; "plr" for realized profit
+
+        timeframe : str
+            Available values: "3h", "1w", "1M" - see bitfinex documentation for available time frames per key
+
+        symbol : str
+            The symbol you want information about. (e.g. tBTCUSD, tETHUSD, tGLOBAL:USD)
+             see bitfinex documentation for available symbols per key
+
+        section : str
+            available values : hist
+
+        start : Optional int
+            Millisecond start time
+
+        end : Optional int
+            Millisecond end time
+
+        limit : Optional int
+            Number of records (Max: 10000)
+
+        sort : Optional int
+            if = 1 it sorts results returned with old > new
+
+        Returns
+        -------
+        list
+             ::
+
+                [[ 
+                  MTS,
+                  PLACEHOLDER,
+                  USERNAME,
+                  RANKING,
+                  PLACEHOLDER,
+                  PLACEHOLDER,
+                  VALUE,
+                  PLACEHOLDER
+                  PLACEHOLDER
+                  TWITTER_HANDLE
+                ],
+                 [
+                  ...
+                 ]
+                ]
+
+        Examples
+        --------
+         ::
+
+            bfx_client.liquidation_feed(start="1580020000000",end="1580058375000");
+            bfx_client.liquidation_feed()
+
+        """
+
+        path = f"v2/rankings/{key}:{timeframe}:{symbol}/{section}"
+        params="?"
+        for key, value in kwargs.items():
+            params = f"{params}{key}={value}&"
+
+        path = path + params[:-1]
+        response = self._get(path)
+        return response
 
     # REST CALCULATION ENDPOINTS
     def market_average_price(self, **kwargs):

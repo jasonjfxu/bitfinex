@@ -110,10 +110,13 @@ def test_trades_url_is_ok(client, requests_mock):
         text=response_text
     )
     client.trades('tIOTUSD')
+    client.trades('tBTCUSD', limit=1, sort=-1)
     assert requests_mock.request_history[0].url == (
         'https://api-pub.bitfinex.com/v2/trades/tIOTUSD/hist'
     )
-
+    assert requests_mock.request_history[1].url == (
+        'https://api-pub.bitfinex.com/v2/trades/tBTCUSD/hist?limit=1&sort=-1'
+    )
 
 def test_trades_response(client, requests_mock):
     response_text = json.dumps([
@@ -137,10 +140,13 @@ def test_book_url_is_ok(client, requests_mock):
         text="[]"
     )
     client.book('tIOTUSD', 'P1')
+    client.book('tIOTUSD', precision="R0", len=1)
     assert requests_mock.request_history[0].url == (
         'https://api-pub.bitfinex.com/v2/book/tIOTUSD/P1'
     )
-
+    assert requests_mock.request_history[1].url == (
+        'https://api-pub.bitfinex.com/v2/book/tIOTUSD/R0?len=1'
+    )
 
 def test_book_response(client, requests_mock):
     response_text = json.dumps([
@@ -160,23 +166,28 @@ def test_book_response(client, requests_mock):
 
 def test_stats_url_is_ok(client, requests_mock):
     response_text = "[]"
-    params = {
-        'key'     : 'funding.size',
-        'size'    : '1m',
-        'symbol'  : 'fUSD',
-        'section' : 'hist',
-        'sort'    : '0'
-    }
     requests_mock.register_uri(
         rmock.ANY,
         rmock.ANY,
         text=response_text
     )
-    client.stats(**params)
-    assert requests_mock.request_history[0].url == (
-        'https://api-pub.bitfinex.com/v2/stats1/funding.size:1m:fUSD/hist?sort=0'
-    )
 
+    client.stats('funding.size', '1m', 'fUSD', section="hist", limit=1)
+    client.stats('pos.size', '1m', 'tBTCUSD', side="long", section="hist", limit=1)
+    client.stats('credits.size', '1m', 'fUSD', section="hist", limit=1)
+    client.stats('credits.size.sym', '1m', 'fUSD:tBTCUSD', section="hist", limit=1)
+    assert requests_mock.request_history[0].url == (
+        'https://api-pub.bitfinex.com/v2/stats1/funding.size:1m:fUSD/hist?limit=1'
+    )
+    assert requests_mock.request_history[1].url == (
+        'https://api-pub.bitfinex.com/v2/stats1/pos.size:1m:tBTCUSD:long/hist?limit=1'
+    )
+    assert requests_mock.request_history[2].url == (
+        'https://api-pub.bitfinex.com/v2/stats1/credits.size:1m:fUSD/hist?limit=1'
+    )
+    assert requests_mock.request_history[3].url == (
+        'https://api-pub.bitfinex.com/v2/stats1/credits.size.sym:1m:fUSD:tBTCUSD/hist?limit=1'
+    )
 
 def test_stats_response(client, requests_mock):
     response_text = json.dumps([
@@ -213,10 +224,18 @@ def test_candles_url_is_ok(client, requests_mock):
         text=response_text
     )
     client.candles("1m", "tBTCUSD", "hist", limit='1')
+    client.candles("1m", "tBTCUSD", "hist")
+    client.candles("1m", "fUSD", "hist", period="p30", limit=1)
+
     assert requests_mock.request_history[0].url == (
         'https://api-pub.bitfinex.com/v2/candles/trade:1m:tBTCUSD/hist?limit=1'
     )
-
+    assert requests_mock.request_history[1].url == (
+        'https://api-pub.bitfinex.com/v2/candles/trade:1m:tBTCUSD/hist'
+    )
+    assert requests_mock.request_history[2].url == (
+        'https://api-pub.bitfinex.com/v2/candles/trade:1m:fUSD:p30/hist?limit=1'
+    )
 
 def test_candles_response(client, requests_mock):
     response_text = json.dumps([
@@ -290,20 +309,12 @@ def test_status_url_is_ok(client, requests_mock):
         text=response_text
     )
     client.status("deriv","tBTCF0:USTF0")
+    client.status("deriv", "tBTCF0:USTF0",start="1580020000000",end="1580058375000")
     assert requests_mock.request_history[0].url == (
         'https://api-pub.bitfinex.com/v2/status/deriv?keys=tBTCF0:USTF0'
     )
-
-def test_status_hist_url_is_ok(client, requests_mock):
-    response_text = json.dumps([None])
-    requests_mock.register_uri(
-        rmock.ANY,
-        rmock.ANY,
-        text=response_text
-    )
-    client.status_hist("deriv", "tBTCF0:USTF0",start="1580020000000",end="1580058375000")
-    assert requests_mock.request_history[0].url == (
-        'https://api-pub.bitfinex.com/v2/status/deriv/tBTCF0:USTF0/hist?start=1580020000000&end=1580058375000&sort=1&limit=100'
+    assert requests_mock.request_history[1].url == (
+        'https://api-pub.bitfinex.com/v2/status/deriv/tBTCF0:USTF0/hist?start=1580020000000&end=1580058375000'
     )
 
 def test_1_liquidation_feed_url_is_ok(client, requests_mock):
@@ -328,6 +339,18 @@ def test_2_liquidation_feed_url_is_ok(client, requests_mock):
     client.liquidation_feed(start=1580061000000, end=1580061814789.5999, limit=2, sort= -1)
     assert requests_mock.request_history[0].url == (
         'https://api-pub.bitfinex.com/v2/liquidations/hist?start=1580061000000&end=1580061814789.5999&limit=2&sort=-1'
+    )
+
+def test_leaderboards_url_is_ok(client, requests_mock):
+    response_text = json.dumps([None])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.leaderboards("vol","3h","tBTCUSD",limit=1,sort=1)
+    assert requests_mock.request_history[0].url == (
+        'https://api-pub.bitfinex.com/v2/rankings/vol:3h:tBTCUSD/hist?limit=1&sort=1'
     )
 
 def test_market_avg_url_is_ok(client, requests_mock):
