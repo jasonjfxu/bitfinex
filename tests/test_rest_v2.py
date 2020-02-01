@@ -362,7 +362,7 @@ def test_market_avg_url_is_ok(client, requests_mock):
     )
     client.market_average_price(symbol="tBTCUSD", amount="100", period="1m")
     assert requests_mock.request_history[0].url == (
-        'https://api-pub.bitfinex.com/v2/calc/trade/avg'
+        'https://api-pub.bitfinex.com/v2/calc/trade/avg?symbol=tBTCUSD&amount=100&period=1m'
     )
 
 
@@ -389,7 +389,7 @@ def test_fx_rate_url_is_ok(client, requests_mock):
     )
     client.foreign_exchange_rate(ccy1="IOT", ccy2="USD")
     assert requests_mock.request_history[0].url == (
-        'https://api-pub.bitfinex.com/v2/calc/fx'
+        'https://api-pub.bitfinex.com/v2/calc/fx?ccy1=IOT&ccy2=USD'
     )
 
 

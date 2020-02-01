@@ -1034,10 +1034,13 @@ class Client:
             bfx_client.market_average_price(symbol="tBTCUSD", amount="100", period="1m")
 
         """
-        body = kwargs
-        raw_body = json.dumps(body)
-        path = "v2/calc/trade/avg"
-        response = self._public_post(path, raw_body, verify=True)
+
+        path = f"v2/calc/trade/avg"
+        params="?"
+        for key, value in kwargs.items():
+            params = f"{params}{key}={value}&"
+        path = path + params[:-1]
+        response = self._public_post(path,payload={}, verify=True)
         return response
 
     def foreign_exchange_rate(self, **kwargs):
@@ -1067,10 +1070,13 @@ class Client:
             bfx_client.foreign_exchange_rate(ccy1="IOT", ccy2="USD")
 
         """
-        body = kwargs
-        raw_body = json.dumps(body)
         path = "v2/calc/fx"
-        response = self._public_post(path, raw_body, verify=True)
+        params="?"
+        for key, value in kwargs.items():
+            params = f"{params}{key}={value}&"
+        path = path + params[:-1]
+
+        response = self._public_post(path, payload={}, verify=True)
         return response
 
     # REST AUTHENTICATED ENDPOINTS
