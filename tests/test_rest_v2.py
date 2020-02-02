@@ -439,6 +439,17 @@ def test_wallets_balance_response(client, requests_mock):
     assert wb_response[0][1] == 'IOT'
     assert wb_response[0][2] == 6380
 
+def test_wallets_history_url_is_ok(client, requests_mock):
+    response_text = json.dumps([])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.wallets_history(currency="BTC")
+    assert requests_mock.request_history[0].url == (
+        'https://api.bitfinex.com/v2/auth/r/wallets/hist'
+    )
 
 def test_active_orders_url_is_ok(client, requests_mock):
     response_text = json.dumps([])
@@ -497,6 +508,17 @@ def test_active_orders_response(client, requests_mock):
     assert isinstance(ao_response, list)
     assert ao_response[0][3] == 'tIOTUSD'
 
+def test_submit_order_url_is_ok(client, requests_mock):
+    response_text = json.dumps([])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.submit_order("EXCHANGE LIMIT", "tLEOUSD", "2.0", "-100", cid=1729, flags=64);
+    assert requests_mock.request_history[0].url == (
+        'https://api.bitfinex.com/v2/auth/w/order/submit'
+    )
 
 def test_orders_history_url_is_ok(client, requests_mock):
     response_text = json.dumps([])
