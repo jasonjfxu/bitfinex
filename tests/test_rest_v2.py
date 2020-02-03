@@ -515,9 +515,21 @@ def test_submit_order_url_is_ok(client, requests_mock):
         rmock.ANY,
         text=response_text
     )
-    client.submit_order("EXCHANGE LIMIT", "tLEOUSD", "2.0", "-100", cid=1729, flags=64);
+    client.submit_order("EXCHANGE LIMIT", "tLEOUSD", "2.0", "-100", cid=1729, flags=64)
     assert requests_mock.request_history[0].url == (
         'https://api.bitfinex.com/v2/auth/w/order/submit'
+    )
+
+def test_order_update_url_is_ok(client, requests_mock):
+    response_text = json.dumps([])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.order_update(38646826900, price="2.02", amount="-98", flags=64)
+    assert requests_mock.request_history[0].url == (
+        'https://api.bitfinex.com/v2/auth/w/order/update'
     )
 
 def test_orders_history_url_is_ok(client, requests_mock):

@@ -1242,7 +1242,7 @@ class Client:
         gid : Optional int32
             (optional) Group id for the order
 
-        cid : Option int32
+        cid : Optional int32
             Client id, Should be unique in the day (UTC) (not enforced)
 
         flags : Optional int32
@@ -1348,8 +1348,133 @@ class Client:
         response = self._post(path, json.dumps(body), verify=True)
         return response
 
-    def order_update(self):
-        raise NotImplementedError
+    def order_update(self, order_id, **kwargs):
+        """`Bitfinex order update reference
+        <https://docs.bitfinex.com/reference#rest-auth-order-update>`_
+
+        Update an existing order, can be used to update margin, exchange, and derivative orders.
+
+        Parameters
+        ----------
+        order_id : int32
+            Order ID (Can be retrieved by calling the Retrieve Orders endpoint)
+
+        cid : Optional int32
+            Client id, Should be unique in the day (UTC) (not enforced)
+
+        cid_date: 
+            Client Order ID Date format must be YYYY-MM-DD
+
+        gid : Optional int32
+            (optional) Group id for the order
+
+        amount : str
+            Amount of order (positive for buy, negative for sell)
+
+        price : str
+            Price of order
+
+        flags : Optional int32
+            `flags <https://docs.bitfinex.com/v2/docs/flag-values>`_
+
+        lev : int32
+            Set the leverage for a derivative order, supported by derivative symbol orders only.
+            The value should be between 1 and 100 inclusive. The field is optional, 
+            if omitted the default leverage value of 10 will be used.
+
+        delta : string
+            Change of amount
+
+        price_aux_limit : str
+            Auxiliary Limit price (for STOP LIMIT)
+
+        price_trailing : str
+            The trailing price for a trailing stop order
+
+        tif : str
+            Time-In-Force: datetime for automatic order cancellation (ie. 2020-01-01 10:45:23) )
+
+        Returns
+        -------
+        list
+             ::
+
+                [
+                  MTS, 
+                  TYPE, 
+                  MESSAGE_ID, 
+                  null,
+
+                   [
+                     ID,
+                     GID,
+                     CID,
+                     SYMBOL,
+                     MTS_CREATE, 
+                     MTS_UPDATE, 
+                     AMOUNT, 
+                     AMOUNT_ORIG, 
+                     TYPE,
+                     TYPE_PREV,
+                     MTS_TIF,
+                     _PLACEHOLDER,
+                     FLAGS,
+                     ORDER_STATUS,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     PRICE,
+                     PRICE_AVG,
+                     PRICE_TRAILING,
+                     PRICE_AUX_LIMIT,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     HIDDEN, 
+                     PLACED_ID,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     ROUTING,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     META
+                   ],
+
+                  CODE, 
+                  STATUS, 
+                  TEXT
+                ]
+
+                [1568110298859,"ou-req",null,null,[30854813589,null,1568109670135,"tBTCUSD",
+                1568109673000,1568109866000,0.002,0.002,"LIMIT","LIMIT",null,null,0,"ACTIVE",
+                null,null,20,0,0,0,null,null,null,0,0,null,null,null,"API>BFX",null,null,null],
+                null,"SUCCESS","Submitting update to limit buy order for 0.002 BTC."]
+
+        Examples
+        --------
+         ::
+
+            [38646826900, None, 1580627473757, 'tLEOUSD', 1580627474000,
+            1580627474000, -100, -100, 'EXCHANGE LIMIT', None, None, None, 0,
+            'ACTIVE', None, None, 2, 0, 0, 0, None, None, None, 0, 0, None,
+            None, None, 'BFX', None, None, None], [38648166834, None, 1580629128587,
+            'tLEOUSD', 1580629129000, 1580629129000, -100, -100, 'EXCHANGE LIMIT',
+            None, None, None, 0, 'ACTIVE', None, None, 2, 0, 0, 0, None, None, None,
+            0, 0, None, None, None, 'API>BFX', None, None, {'aff_code': 'b2UR2iQr'}]
+
+            bfx_client.order_update(38646826900, price="2.01")
+            bfx_client.order_update(38646826900, amount="-99")
+            bfx_client.order_update(38646826900, price="2.02", amount="-98", flags=64)
+
+        """
+        body = {
+            "id": order_id,
+            **kwargs
+        }
+
+        path = "v2/auth/w/order/update"
+        response = self._post(path, json.dumps(body), verify=True)
+        return response
 
     def cancel_order(self):
         raise NotImplementedError
