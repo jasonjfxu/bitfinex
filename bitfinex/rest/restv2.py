@@ -1476,8 +1476,99 @@ class Client:
         response = self._post(path, json.dumps(body), verify=True)
         return response
 
-    def cancel_order(self):
-        raise NotImplementedError
+    def cancel_order(self, **kwargs):
+        """`Bitfinex cancel order reference
+        <https://docs.bitfinex.com/reference#rest-auth-cancel-order>`_
+
+        Cancel an existing order, can be used to cancel margin, exchange, and derivative orders.
+        You can cancel the order by the Internal Order ID or using a Client Order ID (supplied by you).
+        The Client Order ID is unique per day, so you also have to provide the date of the order as a 
+        date string in this format YYYY-MM-DD.
+
+        Parameters
+        ----------
+        order_id : int32
+            Order ID (Can be retrieved by calling the Retrieve Orders endpoint)
+
+        cid : int32
+            Client id, Should be unique in the day (UTC) (not enforced)
+
+        cid_date: 
+            Client Order ID Date format must be YYYY-MM-DD
+
+        Returns
+        -------
+        list
+             ::
+
+                [
+                  MTS, 
+                  TYPE, 
+                  MESSAGE_ID, 
+                  null,
+
+                  [
+                     ID,
+                     GID,
+                     CID,
+                     SYMBOL,
+                     MTS_CREATE, 
+                     MTS_UPDATE, 
+                     AMOUNT, 
+                     AMOUNT_ORIG, 
+                     TYPE,
+                     TYPE_PREV,
+                     MTS_TIF,
+                     _PLACEHOLDER,
+                     FLAGS,
+                     ORDER_STATUS,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     PRICE,
+                     PRICE_AVG,
+                     PRICE_TRAILING,
+                     PRICE_AUX_LIMIT,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     HIDDEN, 
+                     PLACED_ID,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     ROUTING,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     META
+                   ]
+
+                  CODE, 
+                  STATUS, 
+                  TEXT
+                ]
+
+                [1568298355648,"oc-req",null,null,[30937950333,null,1568298279766,"tBTCUSD",
+                1568298281000,1568298281000,0.001,0.001,"LIMIT",null,null,null,0,"ACTIVE",
+                null,null,15,0,0,0,null,null,null,0,0,null,null,null,"API>BFX",null,null,
+                null],null,"SUCCESS","Submitted for cancellation; waiting for confirmation
+                (ID: 30937950333)."]
+        Examples
+        --------
+         ::
+
+            bfx_client.cancel_order(id=38646826900)
+            bfx_client.cancel_order(cid=1729, date="2020-02-04")
+
+            Canceling by clientid did not work at the time this was written 04/02/2020
+
+
+        """
+        body = {
+            **kwargs
+        }
+        path = "v2/auth/w/order/cancel"
+        response = self._post(path, json.dumps(body), verify=True)
+        return response
 
     def order_multi_op(self):
         raise NotImplementedError
