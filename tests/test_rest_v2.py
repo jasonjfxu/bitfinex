@@ -3,6 +3,7 @@ import json
 import pytest
 import requests_mock as rmock
 from bitfinex.rest import ClientV2 as Client
+from bitfinex.utils import Operation as Op
 
 # pylint: disable=W0621,C0111
 
@@ -543,6 +544,48 @@ def test_cancel_order_url_is_ok(client, requests_mock):
     assert requests_mock.request_history[0].url == (
         'https://api.bitfinex.com/v2/auth/w/order/cancel'
     )
+
+def test_new_order_op(client, requests_mock):
+    order_op = client.new_order_op(
+        Op.NEW,
+        order_type="EXCHANGE LIMIT",
+        symbol="tLEOUSD",
+        price="3",
+        amount="10"
+    )
+    assert isinstance(order_op, list)
+    assert isinstance(order_op[0], str)
+    assert isinstance(order_op[1], dict)
+    assert order_op[1]["symbol"] == "tLEOUSD"
+
+    order_op = client.new_order_op(
+        Op.UPDATE,
+        id=124342,
+        amount="10"
+    )
+    assert isinstance(order_op, list)
+    assert isinstance(order_op[0], str)
+    assert isinstance(order_op[1], dict)
+    assert order_op[1]["id"] == 124342
+
+    order_op = client.new_order_op(
+        Op.CANCEL,
+        id=124342
+    )
+    assert isinstance(order_op, list)
+    assert isinstance(order_op[0], str)
+    assert isinstance(order_op[1], dict)
+    assert order_op[1]["id"] == 124342
+
+    order_op = client.new_order_op(
+        Op.MULTI_CANCEL,
+        id=[124342, 32432]
+    )
+
+    assert isinstance(order_op, list)
+    assert isinstance(order_op[0], str)
+    assert isinstance(order_op[1], dict)
+    assert order_op[1]["id"] == [124342, 32432]
 
 def test_orders_history_url_is_ok(client, requests_mock):
     response_text = json.dumps([])

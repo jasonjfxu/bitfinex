@@ -3,6 +3,21 @@ import re
 import time
 from datetime import datetime
 import logging
+from enum import Enum
+
+class Operation(Enum):
+    NEW = 1
+    UPDATE = 2
+    CANCEL = 3
+    MULTI_CANCEL = 4
+
+OPERATION_CODE = {
+    Operation.NEW: "on",
+    Operation.UPDATE: "ou",
+    Operation.CANCEL: "oc",
+    Operation.MULTI_CANCEL: "oc_multi"
+}
+
 
 def create_cid():
     """Create a new Client order id. Based on timestamp multiplied to 10k to

@@ -9,6 +9,7 @@ import hmac
 import hashlib
 import requests
 from bitfinex import utils
+from enum import Enum
 
 PROTOCOL = "https"
 PUBLIC_PREFIX = "api-pub"
@@ -26,7 +27,6 @@ class BitfinexException(Exception):
     Exception handler
     """
     pass
-
 
 class Client:
     """Client for the bitfinex.com API REST V2.
@@ -1570,8 +1570,233 @@ class Client:
         response = self._post(path, json.dumps(body), verify=True)
         return response
 
+    def new_order_op(self, op, **kwargs):
+        """ utility method to create new order operation
+
+        It supports the creation of operations for new order, update order, cancel order,
+        multiple cancel order
+
+        Parameters
+        ----------
+        op : Enum(Operation)
+            Operation must be imported from utils
+
+        kwargs : key value parameters for the operation you want created 
+
+        Returns
+        -------
+        list
+             ::
+
+                [
+                  OPERATION, 
+                  {
+                    ORDER_TYPE,
+                    ID,
+                    ...
+                  }
+                ]
+
+                ['on', {'order_type': 'EXCHANGE_LIMIT', 'symbol': 'tLEOUSD', 'price': '3', 'amount': '10'}]
+                ['ou', {'id': 124342, 'amount': '10'}]
+                ['oc', {'id': 124342}]
+                ['oc_multi', {'id': [124342, 32432]}]
+
+        Examples
+        --------
+         ::
+
+            from bitfinex import ClientV2 as Client2
+            from bitfinex.utils import Operation as Op
+            bfx_client = Client2('', '')
+            bfx_client.new_order_op(
+                Op.NEW,
+                order_type="EXCHANGE_LIMIT",
+                symbol="tLEOUSD",
+                price="3",
+                amount="10"
+                )
+
+            bfx_client.new_order_op(
+                Op.UPDATE,
+                id=124342,
+                amount="10"
+                )
+
+            bfx_client.new_order_op(
+                Op.CANCEL,
+                id=124342
+                )
+
+            bfx_client.new_order_op(
+                Op.MULTI_CANCEL,
+                id=[124342, 32432]
+                )
+
+
+        """
+        assert isinstance(op, utils.Operation), "Please use the Operation enum from utils"
+        op_code = utils.OPERATION_CODE[op]
+
+        if op == utils.Operation.NEW:
+            assert "order_type" in kwargs
+            assert "symbol" in kwargs
+            assert "price" in kwargs
+            assert "amount" in kwargs
+
+        if op == utils.Operation.UPDATE:
+            assert "id" in kwargs
+            assert isinstance(kwargs["id"], int)
+            assert len(kwargs.keys()) > 1
+
+        if op == utils.Operation.CANCEL:
+            assert "id" in kwargs
+            assert isinstance(kwargs["id"], int)
+            assert len(kwargs.keys()) == 1
+
+        if op == utils.Operation.MULTI_CANCEL:
+            assert "id" in kwargs
+            assert isinstance(kwargs["id"], list)
+            assert len(kwargs.keys()) == 1
+
+        order_op = [
+            utils.OPERATION_CODE[op],
+            { **kwargs }
+        ]
+
+        return order_op
+
     def order_multi_op(self):
-        raise NotImplementedError
+        """`Bitfinex order multi reference
+        <https://docs.bitfinex.com/reference#rest-auth-order-multi>`_
+
+        Send Multiple order-related operations. Please note the sent object has only one property
+        with a value of an array of arrays detailing each order operation.
+
+        Parameters
+        ----------
+        order_type : str
+            The type of the order: LIMIT, MARKET, STOP, STOP LIMIT, TRAILING STOP,
+            EXCHANGE MARKET, EXCHANGE LIMIT, EXCHANGE STOP, EXCHANGE STOP LIMIT,
+            EXCHANGE TRAILING STOP, FOK, EXCHANGE FOK, IOC, EXCHANGE IOC.
+
+        symbol : str
+            Symbol for desired pair (ex : 'tBTCUSD')
+
+        price : str
+            Price of order
+
+        amount : str
+            Amount of order (positive for buy, negative for sell)
+
+        gid : Optional int32
+            (optional) Group id for the order
+
+        cid : Optional int32
+            Client id, Should be unique in the day (UTC) (not enforced)
+
+        flags : Optional int32
+            `flags <https://docs.bitfinex.com/v2/docs/flag-values>`_
+
+        lev : int32
+            Set the leverage for a derivative order, supported by derivative symbol orders only.
+            The value should be between 1 and 100 inclusive. The field is optional, 
+            if omitted the default leverage value of 10 will be used.
+
+        price_trailing : str
+            The trailing price for a trailing stop order
+
+        price_aux_limit : str
+            Auxiliary Limit price (for STOP LIMIT)
+
+        price_oco_stop : str
+            One cancels other stop price
+
+        tif : str
+            Time-In-Force: datetime for automatic order cancellation (ie. 2020-01-01 10:45:23) )
+
+        meta : The meta object allows you to pass along an affiliate code inside the object
+               - example: meta: {aff_code: "AFF_CODE_HERE"}
+
+        Returns
+        -------
+        list
+             ::
+
+                [
+                  MTS, 
+                  TYPE, 
+                  MESSAGE_ID, 
+                  null,
+
+                  [[
+                     ID,
+                     GID,
+                     CID,
+                     SYMBOL,
+                     MTS_CREATE, 
+                     MTS_UPDATE, 
+                     AMOUNT, 
+                     AMOUNT_ORIG, 
+                     TYPE,
+                     TYPE_PREV,
+                     MTS_TIF,
+                     _PLACEHOLDER,
+                     FLAGS,
+                     ORDER_STATUS,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     PRICE,
+                     PRICE_AVG,
+                     PRICE_TRAILING,
+                     PRICE_AUX_LIMIT,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     HIDDEN, 
+                     PLACED_ID,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     ROUTING,
+                     _PLACEHOLDER,
+                     _PLACEHOLDER,
+                     META
+                   ],
+                   ]
+
+                  CODE, 
+                  STATUS, 
+                  TEXT
+                ]
+
+                [1567590617.442,"on-req",null,null,[[30630788061,null,1567590617439,"tBTCUSD",
+                1567590617439,1567590617439,0.001,0.001,"LIMIT",null,null,null,0,"ACTIVE",
+                null,null,15,0,0,0,null,null,null,0,null,null,null,null,"API>BFX",null,null,null]],
+                null,"SUCCESS","Submitting 1 orders."]
+
+        Examples
+        --------
+         ::
+
+            Submit order to sell 100 leo at 2$
+            bfx_client.submit_order("EXCHANGE LIMIT", "tLEOUSD", "2.0", "-100");
+            Submit order to sell 100 leo at 2$ with client id 1829 and make the order hidden
+            bfx_client.submit_order("EXCHANGE LIMIT", "tLEOUSD", "2.0", "-100", cid=1729, flags=64);
+
+        """
+        body = {
+            "type": order_type,
+            "symbol": symbol,
+            "price": str(price),
+            "amount": str(amount),
+            "meta": {"aff_code": "b2UR2iQr"},
+            **kwargs
+        }
+
+        path = "v2/auth/w/order/submit"
+        response = self._post(path, json.dumps(body), verify=True)
+        return response
 
     def cancel_order_multi(self):
         raise NotImplementedError
