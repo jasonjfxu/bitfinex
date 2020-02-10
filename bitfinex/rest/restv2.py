@@ -1570,7 +1570,7 @@ class Client:
         response = self._post(path, json.dumps(body), verify=True)
         return response
 
-    def new_order_op(self, op, **kwargs):
+    def get_order_op(self, op, **kwargs):
         """ utility method to create new order operation
 
         It supports the creation of operations for new order, update order, cancel order,
@@ -1609,26 +1609,26 @@ class Client:
             from bitfinex import ClientV2 as Client2
             from bitfinex.utils import Operation as Op
             bfx_client = Client2('', '')
-            bfx_client.new_order_op(
+            bfx_client.get_order_op(
                 Op.NEW,
-                order_type="EXCHANGE_LIMIT",
+                type="EXCHANGE_LIMIT",
                 symbol="tLEOUSD",
                 price="3",
                 amount="10"
                 )
 
-            bfx_client.new_order_op(
+            bfx_client.get_order_op(
                 Op.UPDATE,
                 id=124342,
                 amount="10"
                 )
 
-            bfx_client.new_order_op(
+            bfx_client.get_order_op(
                 Op.CANCEL,
                 id=124342
                 )
 
-            bfx_client.new_order_op(
+            bfx_client.get_order_op(
                 Op.MULTI_CANCEL,
                 id=[124342, 32432]
                 )
@@ -1639,7 +1639,7 @@ class Client:
         op_code = utils.OPERATION_CODE[op]
 
         if op == utils.Operation.NEW:
-            assert "order_type" in kwargs
+            assert "type" in kwargs
             assert "symbol" in kwargs
             assert "price" in kwargs
             assert "amount" in kwargs
@@ -1666,7 +1666,7 @@ class Client:
 
         return order_op
 
-    def order_multi_op(self):
+    def order_multi_op(self, order_ops):
         """`Bitfinex order multi reference
         <https://docs.bitfinex.com/reference#rest-auth-order-multi>`_
 
@@ -1715,86 +1715,97 @@ class Client:
         tif : str
             Time-In-Force: datetime for automatic order cancellation (ie. 2020-01-01 10:45:23) )
 
-        meta : The meta object allows you to pass along an affiliate code inside the object
-               - example: meta: {aff_code: "AFF_CODE_HERE"}
+        cid_date: str
+            Client Order Id Data
+
+        all: int
+            Cancel all open orders if value is set to: 1
 
         Returns
         -------
         list
-             ::
+        ::
 
-                [
-                  MTS, 
-                  TYPE, 
-                  MESSAGE_ID, 
-                  null,
+            [
+              MTS, 
+              TYPE, 
+              MESSAGE_ID, 
+              null,
 
-                  [[
-                     ID,
-                     GID,
-                     CID,
-                     SYMBOL,
-                     MTS_CREATE, 
-                     MTS_UPDATE, 
-                     AMOUNT, 
-                     AMOUNT_ORIG, 
-                     TYPE,
-                     TYPE_PREV,
-                     MTS_TIF,
-                     _PLACEHOLDER,
-                     FLAGS,
-                     ORDER_STATUS,
-                     _PLACEHOLDER,
-                     _PLACEHOLDER,
-                     PRICE,
-                     PRICE_AVG,
-                     PRICE_TRAILING,
-                     PRICE_AUX_LIMIT,
-                     _PLACEHOLDER,
-                     _PLACEHOLDER,
-                     _PLACEHOLDER,
-                     HIDDEN, 
-                     PLACED_ID,
-                     _PLACEHOLDER,
-                     _PLACEHOLDER,
-                     _PLACEHOLDER,
-                     ROUTING,
-                     _PLACEHOLDER,
-                     _PLACEHOLDER,
-                     META
-                   ],
-                   ]
+              [
+                 ID,
+                 GID,
+                 CID,
+                 SYMBOL,
+                 MTS_CREATE, 
+                 MTS_UPDATE, 
+                 AMOUNT, 
+                 AMOUNT_ORIG, 
+                 TYPE,
+                 TYPE_PREV,
+                 MTS_TIF,
+                 _PLACEHOLDER,
+                 FLAGS,
+                 ORDER_STATUS,
+                 _PLACEHOLDER,
+                 _PLACEHOLDER,
+                 PRICE,
+                 PRICE_AVG,
+                 PRICE_TRAILING,
+                 PRICE_AUX_LIMIT,
+                 _PLACEHOLDER,
+                 _PLACEHOLDER,
+                 _PLACEHOLDER,
+                 HIDDEN, 
+                 PLACED_ID,
+                 _PLACEHOLDER,
+                 _PLACEHOLDER,
+                 _PLACEHOLDER,
+                 ROUTING,
+                 _PLACEHOLDER,
+                 _PLACEHOLDER,
+                 META
+               ]
 
-                  CODE, 
-                  STATUS, 
-                  TEXT
-                ]
+              CODE, 
+              STATUS, 
+              TEXT
+            ]
 
-                [1567590617.442,"on-req",null,null,[[30630788061,null,1567590617439,"tBTCUSD",
-                1567590617439,1567590617439,0.001,0.001,"LIMIT",null,null,null,0,"ACTIVE",
-                null,null,15,0,0,0,null,null,null,0,null,null,null,null,"API>BFX",null,null,null]],
-                null,"SUCCESS","Submitting 1 orders."]
+            [1568298355648,"oc-req",null,null,[30937950333,null,1568298279766,"tBTCUSD",
+            1568298281000,1568298281000,0.001,0.001,"LIMIT",null,null,null,0,"ACTIVE",
+            null,null,15,0,0,0,null,null,null,0,0,null,null,null,"API>BFX",null,null,null],
+            null,"SUCCESS","Submitted for cancellation;
+            waiting for confirmation (ID: 30937950333)."]
 
         Examples
         --------
          ::
 
-            Submit order to sell 100 leo at 2$
-            bfx_client.submit_order("EXCHANGE LIMIT", "tLEOUSD", "2.0", "-100");
-            Submit order to sell 100 leo at 2$ with client id 1829 and make the order hidden
-            bfx_client.submit_order("EXCHANGE LIMIT", "tLEOUSD", "2.0", "-100", cid=1729, flags=64);
+            order_op = bfx_client.get_order_op(
+                Op.MULTI_CANCEL,
+                id=[38646826900, 38648166834]
+            )
+
+            ops = [order_op]
+            order_op = bfx_client.get_order_op(
+                Op.NEW,
+                type="EXCHANGE LIMIT",
+                symbol="tLEOUSD",
+                price="3",
+                amount="-10"
+            )
+            ops.append(order_op)
+
+            resp = bfx_client.order_multi_op(ops)
+            print(resp)
 
         """
         body = {
-            "type": order_type,
-            "symbol": symbol,
-            "price": str(price),
-            "amount": str(amount),
-            "meta": {"aff_code": "b2UR2iQr"},
-            **kwargs
+            "ops" : order_ops
         }
 
-        path = "v2/auth/w/order/submit"
+        path = "v2/auth/w/order/multi"
         response = self._post(path, json.dumps(body), verify=True)
         return response
 

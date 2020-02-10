@@ -545,10 +545,10 @@ def test_cancel_order_url_is_ok(client, requests_mock):
         'https://api.bitfinex.com/v2/auth/w/order/cancel'
     )
 
-def test_new_order_op(client, requests_mock):
-    order_op = client.new_order_op(
+def test_get_order_op(client, requests_mock):
+    order_op = client.get_order_op(
         Op.NEW,
-        order_type="EXCHANGE LIMIT",
+        type="EXCHANGE LIMIT",
         symbol="tLEOUSD",
         price="3",
         amount="10"
@@ -558,7 +558,7 @@ def test_new_order_op(client, requests_mock):
     assert isinstance(order_op[1], dict)
     assert order_op[1]["symbol"] == "tLEOUSD"
 
-    order_op = client.new_order_op(
+    order_op = client.get_order_op(
         Op.UPDATE,
         id=124342,
         amount="10"
@@ -568,7 +568,7 @@ def test_new_order_op(client, requests_mock):
     assert isinstance(order_op[1], dict)
     assert order_op[1]["id"] == 124342
 
-    order_op = client.new_order_op(
+    order_op = client.get_order_op(
         Op.CANCEL,
         id=124342
     )
@@ -577,7 +577,7 @@ def test_new_order_op(client, requests_mock):
     assert isinstance(order_op[1], dict)
     assert order_op[1]["id"] == 124342
 
-    order_op = client.new_order_op(
+    order_op = client.get_order_op(
         Op.MULTI_CANCEL,
         id=[124342, 32432]
     )
