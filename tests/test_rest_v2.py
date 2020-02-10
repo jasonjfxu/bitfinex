@@ -587,6 +587,33 @@ def test_get_order_op(client, requests_mock):
     assert isinstance(order_op[1], dict)
     assert order_op[1]["id"] == [124342, 32432]
 
+def test_order_multi_op_url_is_ok(client, requests_mock):
+    response_text = json.dumps([])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    order_op = client.get_order_op(
+        Op.MULTI_CANCEL,
+        id=[38646826900, 38648166834]
+    )
+
+    ops = [order_op]
+    order_op = client.get_order_op(
+        Op.NEW,
+        type="EXCHANGE LIMIT",
+        symbol="tLEOUSD",
+        price="3",
+        amount="-10"
+    )
+    ops.append(order_op)
+
+    resp = client.order_multi_op(ops)
+    assert requests_mock.request_history[0].url == (
+        'https://api.bitfinex.com/v2/auth/w/order/multi'
+    )
+
 def test_orders_history_url_is_ok(client, requests_mock):
     response_text = json.dumps([])
     requests_mock.register_uri(
