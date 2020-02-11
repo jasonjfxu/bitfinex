@@ -1809,8 +1809,102 @@ class Client:
         response = self._post(path, json.dumps(body), verify=True)
         return response
 
-    def cancel_order_multi(self):
-        raise NotImplementedError
+    def cancel_order_multi(self, **kwargs):
+        """`Bitfinex cancel order multi reference
+        <https://docs.bitfinex.com/reference#rest-auth-order-cancel-multi>`_
+
+        Cancel multiple orders simultaneously.
+
+        Orders can be canceled based on the Order ID, the combination of Client Order ID
+        and Client Order Date, or the Group Order ID. Alternatively, the body param 'all'
+        can be used with a value of 1 to cancel all orders.
+
+        Parameters
+        ----------
+        id : list
+            Order ID (Can be retrieved by calling the Retrieve Orders endpoint)
+
+        cid : int32
+            Client id, Should be unique in the day (UTC) (not enforced)
+
+        cid_date: str
+            Client Order ID Date format must be YYYY-MM-DD
+
+        gid: int
+            Group Order ID
+
+        all: int
+            Cancel all open orders if value is set to: 1 (Trading and Derivatives)
+
+        Returns
+        -------
+        list
+             ::
+
+                [[
+                    ID,
+                    GID,
+                    CID,
+                    SYMBOL,
+                    MTS_CREATE, 
+                    MTS_UPDATE, 
+                    AMOUNT, 
+                    AMOUNT_ORIG, 
+                    TYPE,
+                    TYPE_PREV,
+                    MTS_TIF,
+                    _PLACEHOLDER,
+                    FLAGS,
+                    ORDER_STATUS,
+                    _PLACEHOLDER,
+                    _PLACEHOLDER,
+                    PRICE,
+                    PRICE_AVG,
+                    PRICE_TRAILING,
+                    PRICE_AUX_LIMIT,
+                    _PLACEHOLDER,
+                    _PLACEHOLDER,
+                    _PLACEHOLDER,
+                    _PLACEHOLDER,
+                    HIDDEN, 
+                    PLACED_ID,
+                    _PLACEHOLDER,
+                    _PLACEHOLDER,
+                    ROUTING,
+                    _PLACEHOLDER,
+                    _PLACEHOLDER,
+                    META
+                   ],
+                    [ID, ...]
+                   ],
+                  CODE, 
+                  STATUS, 
+                  TEXT
+                ]
+    
+                [1568711312683,"oc_multi-req",null,null,[[31123704044,null,1568711144715,"tBTCUSD",
+                1568711147000,1568711147000,0.001,0.001,"LIMIT",null,null,null,0,"ACTIVE",null,
+                null,15,0,0,0,null,null,null,0,0,null,null,null,"API>BFX",null,null,null],
+                [31123725368,null,1568711155664,"tBTCUSD",1568711158000,1568711158000,0.001,0.001,
+                "LIMIT",null,null,null,0,"ACTIVE",null,null,15,0,0,0,null,null,null,0,0,null,null,
+                null,"API>BFX",null,null,null]],null,"SUCCESS","Submitting 2 order cancellations."]
+        Examples
+        --------
+         ::
+
+            bfx_client.cancel_order_multi(id=[39259104169, 39271246477])
+            bfx_client.cancel_order_multi(cid=[[1729, "2020-02-10"], [1729, "2020-02-02"]])
+            bfx_client.cancel_order_multi(all=1)
+            Canceling using cid did not work at the time this was written 11/02/2020
+
+
+        """
+        body = {
+            **kwargs
+        }
+        path = "v2/auth/w/order/cancel/multi"
+        response = self._post(path, json.dumps(body), verify=True)
+        return response
 
     def orders_history(self, trade_pair=None, **kwargs):
         """`Bitfinex orders history reference

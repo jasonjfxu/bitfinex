@@ -614,6 +614,18 @@ def test_order_multi_op_url_is_ok(client, requests_mock):
         'https://api.bitfinex.com/v2/auth/w/order/multi'
     )
 
+def test_cancel_order_multi_url_is_ok(client, requests_mock):
+    response_text = json.dumps([])
+    requests_mock.register_uri(
+        rmock.ANY,
+        rmock.ANY,
+        text=response_text
+    )
+    client.cancel_order_multi(all=1)
+    assert requests_mock.request_history[0].url == (
+        'https://api.bitfinex.com/v2/auth/w/order/cancel/multi'
+    )
+
 def test_orders_history_url_is_ok(client, requests_mock):
     response_text = json.dumps([])
     requests_mock.register_uri(
