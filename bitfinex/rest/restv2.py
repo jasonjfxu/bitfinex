@@ -1926,8 +1926,8 @@ class Client:
         limit : Optional int
             Number of records
 
-        sort : Optional int
-            set to 1 to get results in ascending order or -1 for descending
+        id : Optional list 
+            Allows you to retrieve specific orders by order ID (id: [ID1, ID2, ID3])
 
         Returns
         -------
@@ -1940,16 +1940,16 @@ class Client:
                     GID,
                     CID,
                     SYMBOL,
-                    MTS_CREATE,
-                    MTS_UPDATE,
-                    AMOUNT,
-                    AMOUNT_ORIG,
+                    MTS_CREATE, 
+                    MTS_UPDATE, 
+                    AMOUNT, 
+                    AMOUNT_ORIG, 
                     TYPE,
                     TYPE_PREV,
-                    _PLACEHOLDER,
+                    MTS_TIF,
                     _PLACEHOLDER,
                     FLAGS,
-                    STATUS,
+                    ORDER_STATUS,
                     _PLACEHOLDER,
                     _PLACEHOLDER,
                     PRICE,
@@ -1959,19 +1959,32 @@ class Client:
                     _PLACEHOLDER,
                     _PLACEHOLDER,
                     _PLACEHOLDER,
-                    NOTIFY,
-                    HIDDEN,
+                    _PLACEHOLDER,
+                    HIDDEN, 
                     PLACED_ID,
-                    ...
+                    _PLACEHOLDER,
+                    _PLACEHOLDER,
+                    ROUTING,
+                    _PLACEHOLDER,
+                    _PLACEHOLDER,
+                    META
                   ],
                   ...
                 ]
+
+                [[33961681942,"1227",1337,"tBTCUSD",1573482478000,1573485373000,0.001,0.001,
+                "EXCHANGE LIMIT",null,null,null,"0","CANCELED",null,null,15,0,0,0,null,null,null,
+                0,0,null,null,null,"API>BFX",null,null,null],[33950998276,null,1573476812756,
+                "tBTCUSD",1573476813000,1573485371000,0.0026,0.0026,"LIMIT",null,null,null,"0",
+                "CANCELED",null,null,8000,0,0,0,null,null,null,0,0,null,null,null,"BFX",
+                null,null,null]]
 
         Example
         -------
          ::
 
             bfx_client.orders_history("tIOTUSD")
+            bfx_client.orders_history(id=[29889265065,29865773141])
 
         """
 
