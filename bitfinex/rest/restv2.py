@@ -2068,6 +2068,10 @@ class Client:
         limit : Optional int
             Number of records
 
+        sort : Optional int
+            set to 1 to get results in ascending order
+
+
         Returns
         -------
         list
@@ -2111,7 +2115,7 @@ class Client:
         response = self._post(path, raw_body, verify=True)
         return response
 
-    def ledgers(self, currency=""):
+    def ledgers(self, currency="",  **kwargs):
         """`Bitfinex ledgers reference
         <https://docs.bitfinex.com/reference#rest-auth-ledgers>`_
 
@@ -2121,6 +2125,15 @@ class Client:
         ----------
         Currency : str
             Currency (BTC, ...)
+
+        start : Optional int
+            Millisecond start time
+
+        end : Optional int
+            Millisecond end time
+
+        limit : Optional int
+            Number of records
 
         Returns
         -------
@@ -2146,8 +2159,7 @@ class Client:
             bfx_client.ledgers('IOT')
 
         """
-        body = {}
-        raw_body = json.dumps(body)
+        raw_body = json.dumps(kwargs)
         add_currency = "{}/".format(currency.upper()) if currency else ""
         path = "v2/auth/r/ledgers/{}hist".format(add_currency)
         response = self._post(path, raw_body, verify=True)
