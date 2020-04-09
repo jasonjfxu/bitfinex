@@ -23,7 +23,7 @@ class MyWssTest():
         self.mywss2 = None
         # Tracks Websocket Connection
         self.connection_timer = None
-        self.connection_timeout = 15
+        self.connection_timeout = 60
         self.keep_running = True
         self.wssactions = {
             'hb': self._heartbeat_handler
