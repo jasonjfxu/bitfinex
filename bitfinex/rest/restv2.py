@@ -495,7 +495,7 @@ class Client:
             params = f"{params}{key}={value}&"
         params = params[:-1] # remove last & or ? if there are no optional parameters 
 
-        path = "v2/book/{}/{}?{}".format(symbol, precision, params)
+        path = "v2/book/{}/{}{}".format(symbol, precision, params)
         response = self._get(path)
         return response
 
