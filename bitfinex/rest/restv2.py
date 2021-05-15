@@ -495,7 +495,7 @@ class Client:
             params = f"{params}{key}={value}&"
         params = params[:-1] # remove last & or ? if there are no optional parameters 
 
-        path = "v2/book/{}/{}{}".format(symbol, precision, params)
+        path = "v2/book/{}/{}?{}".format(symbol, precision, params)
         response = self._get(path)
         return response
 
@@ -2448,13 +2448,31 @@ class Client:
         response = self._post(path, raw_body, verify=True)
         return response
 
-    def submit_funding_offer(self):
-        raise NotImplementedError
+    def submit_funding_offer(self, symbol, amount, rate, period,
+                                   order_type='LIMIT'):
+        body = {
+            "type": order_type,
+            "symbol": symbol,
+            "amount": str(amount),
+            "rate": str(rate),
+            "period": period,
+            "flags": 0
+        }
 
-    def cancel_funding_offer(self):
-        raise NotImplementedError
+        path = "v2/auth/w/funding/offer/submit"
+        response = self._post(path, json.dumps(body), verify=True)
+        return response
 
-    def cancel_all_funding_offers(self):
+    def cancel_funding_offer(self, funding_id):
+        body = {
+            "id": funding_id
+        }
+
+        path = "v2/auth/w/funding/offer/cancel"
+        response = self._post(path, json.dumps(body), verify=True)
+        return response
+
+    def cancel_all_funding_offers(self, currency=''):
         raise NotImplementedError
 
     def funding_close(self):
